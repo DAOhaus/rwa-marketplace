@@ -14,18 +14,17 @@ import { Header } from "~~/components/Header";
 import { BlockieAvatar } from "~~/components/scaffold-eth";
 import { ProgressBar } from "~~/components/scaffold-eth/ProgressBar";
 import { useInitializeNativeCurrencyPrice } from "~~/hooks/scaffold-eth";
-import { wagmiConfig } from "~~/services/web3/wagmiConfig";
+
+// import { wagmiConfig } from "~~/services/web3/wagmiConfig";
 
 const config = getDefaultConfig({
   appName: "My RainbowKit App",
   projectId: "04309ed1007e77d1f119b85205bb779d",
-  // chains: [mainnet, sepolia, polygon, chainConfig],
   chains: [mainnet, sepolia, polygon],
   transports: {
     [mainnet.id]: http(),
     [sepolia.id]: http(),
     [polygon.id]: http(),
-    // [chainConfig.chainId]: http(),
   },
   wallets: [
     {
@@ -35,7 +34,7 @@ const config = getDefaultConfig({
   ],
 });
 
-console.log("configs", wagmiConfig, config);
+// console.log("configs", wagmiConfig, config);
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   useInitializeNativeCurrencyPrice();
@@ -70,7 +69,7 @@ export const ScaffoldEthAppWithProviders = ({ children }: { children: React.Reac
   }, []);
 
   return (
-    <WagmiProvider config={wagmiConfig}>
+    <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <ProgressBar />
         <RainbowKitProvider

@@ -4,11 +4,10 @@ import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
 import { Web3Auth } from "@web3auth/modal";
 import { Web3AuthConnector } from "@web3auth/web3auth-wagmi-connector";
 import { createConnector as createWagmiConnector } from "wagmi";
-import { mainnet } from "wagmi/chains";
 
-const clientId = process.env.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID as string;
+const clientId = "BPi5PB_UiIZ-cPz1GtV5i1I2iOSOHuimiXBI0e-Oe_u6X3oVAbCiAZOTEBtTXw4tsluTITPqA8zMsfxIKMjiqNQ"; // get from https://dashboard.web3auth.io
 
-export const chainConfig = {
+const chainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,
   chainId: "0x1", // Please use 0x1 for Mainnet
   rpcTarget: "https://rpc.ankr.com/eth",
@@ -19,13 +18,11 @@ export const chainConfig = {
   logo: "https://cryptologos.cc/logos/ethereum-eth-logo.png",
 };
 
-console.log("configs", chainConfig, mainnet);
-
 const privateKeyProvider = new EthereumPrivateKeyProvider({ config: { chainConfig } });
 
 const web3AuthInstance = new Web3Auth({
   clientId,
-  web3AuthNetwork: WEB3AUTH_NETWORK.TESTNET,
+  web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_MAINNET,
   privateKeyProvider,
   uiConfig: {
     mode: "dark",

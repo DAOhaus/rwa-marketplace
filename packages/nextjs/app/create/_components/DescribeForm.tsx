@@ -30,8 +30,10 @@ export const DescribeForm = ({
   const canProceed = nftData.name && nftData.description && nftData.file;
   const [attributeCount, setAttributeCount] = useState(groupByKeyValue(nftData).length);
   const pdfAttribute = getAttribute(chainData.linkedPdfKey, nftData.attributes);
+
   const [menuIndex, setMenuIndex] = useState(0);
   const [assetAttr, setAssetAttr] = useState(eval(`jsonData[${menuIndex}].attributes`));
+
   const handleAttributeChange = (e: { target: { value: any; name: any } }) => {
     const value = e.target.value;
     const key = e.target.name;
@@ -89,7 +91,6 @@ export const DescribeForm = ({
           onChange={e => setNftData({ ...nftData, description: e.target.value })}
           placeholder="This token represents my physical asset located at..."
         />
-
         <Input
           name="category"
           inputElement={

@@ -116,20 +116,6 @@ export const DescribeForm = ({
         />
         <Box>
           <InputLabel>Select Attributes</InputLabel>
-          <table>
-            <tbody>
-              {assetAttr.map((attr: any) => (
-                <tr key={attr.name}>
-                  <td>
-                    <label htmlFor="">{attr.name}</label>
-                  </td>
-                  <td>
-                    <input type={attr.inputType} placeholder={attr.defaultValue} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
           <Box>
             <HStack>
               <Box width={"50%"} pr={1}>
@@ -139,14 +125,13 @@ export const DescribeForm = ({
                 <InputLabel>Value </InputLabel>
               </Box>
             </HStack>
-            {assetAttr.map((ind: any, attr: any) => (
+            {assetAttr.map((attr: any) => (
               <HStack key={attr} mb={2}>
                 <Box width={"50%"} pr={1}>
-                  <InputLabel htmlFor={ind}>{attr.name}</InputLabel>
+                  <InputLabel>{attr.name}</InputLabel>
                 </Box>
                 <Box width={"50%"}>
                   <Input
-                    id={ind}
                     defaultValue={attr.defaultValue}
                     name={attr.name}
                     type={attr.inputType}

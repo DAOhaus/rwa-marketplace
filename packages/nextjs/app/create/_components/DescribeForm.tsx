@@ -14,7 +14,15 @@ import { createAttribute, getAttribute, groupByKeyValue } from "~~/utils/helpers
 const cleanAttributes = (attributes: Array<{ trait_type: string }>, duplicateString: string) =>
   (attributes || []).filter((att: { trait_type: string }) => att.trait_type != duplicateString);
 
-export const DescribeForm = ({ setStage, stage }: { setStage: (arg0: number) => void; stage: number }) => {
+export const DescribeForm = ({
+  setStage,
+  stage,
+  jsonData,
+}: {
+  setStage: (arg0: number) => void;
+  stage: number;
+  jsonData: any;
+}) => {
   // const [nftData, setNftData] = useGlobalState(nft);
   const [nftData, setNftData] = useState<any>({});
   const [error, setError] = useState("");
@@ -22,6 +30,8 @@ export const DescribeForm = ({ setStage, stage }: { setStage: (arg0: number) => 
   const canProceed = nftData.name && nftData.description && nftData.file;
   const [attributeCount, setAttributeCount] = useState(groupByKeyValue(nftData).length);
   const pdfAttribute = getAttribute(chainData.linkedPdfKey, nftData.attributes);
+  const [menuIndex, setMenuIndex] = useState(0);
+  const [assetAttr, setAssetAttr] = useState(eval(`jsonData[${menuIndex}].attributes`));
   const handleAttributeChange = (e: { target: { value: any; name: any } }) => {
     const value = e.target.value;
     const key = e.target.name;
@@ -79,24 +89,75 @@ export const DescribeForm = ({ setStage, stage }: { setStage: (arg0: number) => 
           onChange={e => setNftData({ ...nftData, description: e.target.value })}
           placeholder="This token represents my physical asset located at..."
         />
+
         <Input
           name="category"
           inputElement={
             <Select
-              onChange={e => setNftData({ ...nftData, category: e.target.value })}
+              onChange={e => {
+                setNftData({ ...nftData, category: e.target.value });
+                if (e.target.value !== null) {
+                  const isTheOne = (element: any) => element.assetClass === e.target.value;
+                  const indx: number = jsonData.findIndex(isTheOne);
+                  setMenuIndex(indx);
+                  setAssetAttr(eval(`jsonData[${indx}].attributes`));
+                }
+              }}
               value={nftData.category}
               placeholder="Select option"
               className="placeholder:"
             >
               <option value="art">Art</option>
-              <option value="item">Item</option>
-              <option value="realEstate">Real Estate</option>
-              <option value="membership">Community</option>
-              <option value="naturalResource">Natural Resource</option>
-              <option value="other">Other</option>
+              <option value="real_estate">Real Estate</option>
+              <option value="car">Car</option>
             </Select>
           }
         />
+        <Box>
+          <InputLabel>Select Attributes</InputLabel>
+          <table>
+            <tbody>
+              {assetAttr.map((attr: any) => (
+                <tr key={attr.name}>
+                  <td>
+                    <label htmlFor="">{attr.name}</label>
+                  </td>
+                  <td>
+                    <input type={attr.inputType} placeholder={attr.defaultValue} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <Box>
+            <HStack>
+              <Box width={"50%"} pr={1}>
+                <InputLabel>Attribute</InputLabel>
+              </Box>
+              <Box width={"50%"} pr={1}>
+                <InputLabel>Value </InputLabel>
+              </Box>
+            </HStack>
+            {assetAttr.map((ind: any, attr: any) => (
+              <HStack key={attr} mb={2}>
+                <Box width={"50%"} pr={1}>
+                  <InputLabel htmlFor={ind}>{attr.name}</InputLabel>
+                </Box>
+                <Box width={"50%"}>
+                  <Input
+                    id={ind}
+                    defaultValue={attr.defaultValue}
+                    name={attr.name}
+                    type={attr.inputType}
+                    label={"none"}
+                    placeholder={attr.defaultValue}
+                    onChange={handleAttributeChange}
+                  />
+                </Box>
+              </HStack>
+            ))}
+          </Box>
+        </Box>
         <Box>
           <InputLabel>Linked Document</InputLabel>
           <Input

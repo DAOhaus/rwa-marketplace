@@ -6,10 +6,12 @@ import { Box, Flex, HStack, Select, Stack } from "@chakra-ui/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { Alert, Button, Input, InputLabel, Text } from "~~/components";
 import chainData from "~~/utils/chainData";
+import { createAttribute, getAttribute } from "~~/utils/helpers";
+
 // import Input, { Label } from "~~/components/Input";
 // import { singleUpload } from "~~/services/fleek";
 // import useGlobalState, { nft } from "~~/services/store/store";
-import { createAttribute, getAttribute, groupByKeyValue } from "~~/utils/helpers";
+// import { groupByKeyValue } from "~~/utils/helpers";
 
 const cleanAttributes = (attributes: Array<{ trait_type: string }>, duplicateString: string) =>
   (attributes || []).filter((att: { trait_type: string }) => att.trait_type != duplicateString);
@@ -27,12 +29,19 @@ export const DescribeForm = ({
   const [nftData, setNftData] = useState<any>({});
   const [error, setError] = useState("");
   const [pdfUploading, setPdfUploading] = useState<boolean>(false);
-  const canProceed = nftData.name && nftData.description && nftData.file;
-  const [attributeCount, setAttributeCount] = useState(groupByKeyValue(nftData).length);
   const pdfAttribute = getAttribute(chainData.linkedPdfKey, nftData.attributes);
 
   const [menuIndex, setMenuIndex] = useState(0);
-  const [assetAttr, setAssetAttr] = useState(eval(`jsonData[${menuIndex}].attributes`));
+  const [assetAttr, setAssetAttr] = useState(jsonData[menuIndex].attributes);
+
+  const canProceed = () => {
+    // let can = nftData.name && nftData.description && nftData.file;
+    let can = nftData.name && nftData.description;
+    assetAttr.map((attr: any) => {
+      can = can && (assetAttr[assetAttr.indexOf(attr)].required ? eval(`nftData.${attr.name}`) : true);
+    });
+    return can;
+  };
 
   const handleAttributeChange = (e: { target: { value: any; name: any } }) => {
     const value = e.target.value;
@@ -96,9 +105,21 @@ export const DescribeForm = ({
           inputElement={
             <Select
               onChange={e => {
-                setNftData({ ...nftData, category: e.target.value });
-                if (e.target.value !== null) {
-                  const isTheOne = (element: any) => element.assetClass === e.target.value;
+                const newCategory = e.target.value;
+                if (newCategory !== null) {
+                  // clear attributes
+                  const assetAttributes: any = [];
+                  jsonData.map((e: any) => {
+                    e.attributes.map((a: any) => {
+                      assetAttributes.push(a.name);
+                    });
+                  });
+                  assetAttributes.map((e: any) => {
+                    eval(`delete nftData.${e};`);
+                  });
+
+                  setNftData({ ...nftData, category: newCategory });
+                  const isTheOne = (element: any) => element.assetClass === newCategory;
                   const indx: number = jsonData.findIndex(isTheOne);
                   setMenuIndex(indx);
                   setAssetAttr(eval(`jsonData[${indx}].attributes`));
@@ -115,34 +136,32 @@ export const DescribeForm = ({
           }
         />
         <Box>
-          <InputLabel>Select Attributes</InputLabel>
-          <Box>
-            <HStack>
+          <HStack>
+            <Box width={"50%"} pr={1}>
+              <InputLabel>Attribute</InputLabel>
+            </Box>
+            <Box width={"50%"} pr={1}>
+              <InputLabel>Value </InputLabel>
+            </Box>
+          </HStack>
+          {assetAttr.map((attr: any) => (
+            // make the key unique
+            <HStack key={attr.name} mb={2}>
               <Box width={"50%"} pr={1}>
-                <InputLabel>Attribute</InputLabel>
+                <InputLabel>{attr.name}</InputLabel>
               </Box>
-              <Box width={"50%"} pr={1}>
-                <InputLabel>Value </InputLabel>
+              <Box width={"50%"}>
+                <Input
+                  defaultValue={attr.defaultValue}
+                  name={attr.name}
+                  type={attr.inputType}
+                  label={"none"}
+                  placeholder={attr.defaultValue}
+                  onChange={handleAttributeChange}
+                />
               </Box>
             </HStack>
-            {assetAttr.map((attr: any) => (
-              <HStack key={attr} mb={2}>
-                <Box width={"50%"} pr={1}>
-                  <InputLabel>{attr.name}</InputLabel>
-                </Box>
-                <Box width={"50%"}>
-                  <Input
-                    defaultValue={attr.defaultValue}
-                    name={attr.name}
-                    type={attr.inputType}
-                    label={"none"}
-                    placeholder={attr.defaultValue}
-                    onChange={handleAttributeChange}
-                  />
-                </Box>
-              </HStack>
-            ))}
-          </Box>
+          ))}
         </Box>
         <Box>
           <InputLabel>Linked Document</InputLabel>
@@ -170,58 +189,8 @@ export const DescribeForm = ({
             acceptedFileType="pdf"
           />
         </Box>
-        <Box>
-          {!!attributeCount && (
-            <Box>
-              <HStack>
-                <Box width={"50%"} pr={1}>
-                  <InputLabel>Attribute</InputLabel>
-                </Box>
-                <Box width={"50%"} pr={1}>
-                  <InputLabel>Value </InputLabel>
-                </Box>
-              </HStack>
-              {Array(attributeCount)
-                .fill(0)
-                .map((_, i) => (
-                  <HStack key={i} mb={2}>
-                    <Box width={"50%"} pr={1}>
-                      <Input
-                        defaultValue={nftData[`${i}:trait_type`]}
-                        name={`${i}:trait_type`}
-                        label={"none"}
-                        type="text"
-                        placeholder="attribute"
-                        onChange={handleAttributeChange}
-                      />
-                    </Box>
-                    <Box width={"50%"}>
-                      <Input
-                        defaultValue={nftData[`${i}:value`]}
-                        name={`${i}:value`}
-                        label={"none"}
-                        type="text"
-                        placeholder="value"
-                        onChange={handleAttributeChange}
-                      />
-                    </Box>
-                  </HStack>
-                ))}
-            </Box>
-          )}
-          <Button
-            w={"full"}
-            variant={"outline"}
-            colorScheme="teal"
-            onClick={() => {
-              setAttributeCount(attributeCount + 1);
-            }}
-          >
-            + Add Attribute
-          </Button>
-        </Box>
         {error && <Alert type="error" message={error} />}
-        <Button colorScheme={"teal"} isDisabled={!canProceed} onClick={() => setStage(stage + 1)}>
+        <Button colorScheme={"teal"} isDisabled={!canProceed()} onClick={() => setStage(stage + 1)}>
           <Flex width={"full"} justifyContent={"space-between"} alignItems={"center"}>
             <ChevronLeftIcon opacity={0} width="20" /> Next <ChevronRightIcon width={20} className="justify-self-end" />
           </Flex>

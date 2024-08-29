@@ -1,65 +1,73 @@
 // TODO: bring over the IPFS upload service but don't call it "fleek"
 // TODO: bring over the IPFS upload service but don't call it "fleek"
-import { useState } from "react";
-import { State } from "./ListingForm";
-import UploadInput from "./UploadInput";
+// import { useState } from "react";
+import { State } from "../page";
+// import { createAttribute, getAttribute } from "~~/utils/helpers";
+import { art, car, realEstate } from "./Asset";
+// import UploadInput from "./UploadInput";
 import { Box, Flex, HStack, Select, Stack } from "@chakra-ui/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { Alert, Button, Input, InputLabel, Text } from "~~/components";
 import chainData from "~~/utils/chainData";
-import { createAttribute, getAttribute } from "~~/utils/helpers";
+import { getAttribute } from "~~/utils/helpers";
 
 // import Input, { Label } from "~~/components/Input";
 // import { singleUpload } from "~~/services/fleek";
 // import useGlobalState, { nft } from "~~/services/store/store";
 // import { groupByKeyValue } from "~~/utils/helpers";
 
-const cleanAttributes = (attributes: Array<{ trait_type: string }>, duplicateString: string) =>
-  (attributes || []).filter((att: { trait_type: string }) => att.trait_type != duplicateString);
+// const cleanAttributes = (attributes: Array<{ trait_type: string }>, duplicateString: string) =>
+//   (attributes || []).filter((att: { trait_type: string }) => att.trait_type != duplicateString);
 
-export const DescribeForm = ({ state, jsonData }: { state: State; jsonData: any }) => {
-  const { stage, setStage, nftData, setNftData } = state;
-  const [error, setError] = useState("");
-  const [pdfUploading, setPdfUploading] = useState<boolean>(false);
-  const pdfAttribute = getAttribute(chainData.linkedPdfKey, nftData.attributes);
-
-  const [menuIndex, setMenuIndex] = useState(0);
-  const [assetAttr, setAssetAttr] = useState(jsonData[menuIndex].attributes);
+export const DescribeForm = ({ state }: { state: State }) => {
+  const { stage, setStage, asset, setAsset } = state;
+  const error = ""; //const [error, setError] = useState("");
+  // const [pdfUploading, setPdfUploading] = useState<boolean>(false);
+  // const pdfAttribute = getAttribute(chainData.linkedPdfKey, asset.nft.attributes);
 
   const canProceed = () => {
-    // let can = nftData.name && nftData.description && nftData.file;
-    let can = nftData.name && nftData.description;
-    assetAttr.map((attr: any) => {
-      can = can && (assetAttr[assetAttr.indexOf(attr)].required ? eval(`nftData.${attr.name}`) : true);
-    });
+    let can = asset.nft.name && asset.nft.description && asset.nft.external_url;
+    asset.nft.attributes.map(
+      (attr: any, indx: any) => (can = can && (asset.attributeDetails[indx].required ? attr.value : true)),
+    );
     return can;
   };
 
+  const getAssetFromCategory = (category: string) =>
+    category === "art" ? art : category === "realEstate" ? realEstate : car;
   const handleAttributeChange = (e: { target: { value: any; name: any } }) => {
     const value = e.target.value;
     const key = e.target.name;
-    setNftData({ ...nftData, [key]: value });
-  };
-  const handlePdfDrop = async (event: any) => {
-    console.log("event", event);
-    if (pdfUploading) return;
-    // const handleError = (err: string) => {
-    //   setError(err);
-    //   setPdfUploading(false);
-    // };
-    setPdfUploading(true);
-    // const pdfHash = await singleUpload(event[0], event[0].path, handleError);
-    const pdfHash = "0xNeedsToReplaceThis";
-    console.log("pdfHash:", pdfHash);
-    const pdfAddition = createAttribute(chainData.linkedPdfKey, chainData.baseIPFSUrl + pdfHash);
-    const cleanedAttributes = cleanAttributes(nftData.attributes, chainData.linkedPdfKey);
-    setNftData({
-      ...nftData,
-      attributes: [...cleanedAttributes, pdfAddition],
+    setAsset({
+      ...asset,
+      nft: {
+        ...asset.nft,
+        attributes: asset.nft.attributes.map((attr: any) =>
+          attr.trait_type === key ? { trait_type: attr.trait_type, value: String(value) } : attr,
+        ),
+      },
     });
-    setError("");
-    setPdfUploading(false);
   };
+  // const handlePdfDrop = async (event: any) => {
+  //   console.log("event", event);
+  //   if (pdfUploading) return;
+  //   const handleError = (err: string) => {
+  //     setError(err);
+  //     setPdfUploading(false);
+  //   };
+  //   setPdfUploading(true);
+  //   const pdfHash = await singleUpload(event[0], event[0].path, handleError);
+  //   const pdfHash = "0xNeedsToReplaceThis";
+  //   console.log("pdfHash:", pdfHash);
+  //   const pdfAddition = createAttribute(chainData.linkedPdfKey, chainData.baseIPFSUrl + pdfHash);
+  //   const cleanedAttributes = cleanAttributes(asset.nft.attributes, chainData.linkedPdfKey);
+  //   setAsset({   // TODO
+  //     ...asset,
+  //     nft: {...asset.nft, attributes: [...cleanedAttributes, pdfAddition]}
+  //   });
+  //   setError("");
+  //   setPdfUploading(false);
+  // };
   return (
     <>
       <Stack p={4} gap={4}>
@@ -80,16 +88,16 @@ export const DescribeForm = ({ state, jsonData }: { state: State; jsonData: any 
         <Input
           label="NFT Name"
           name="name"
-          defaultValue={nftData.name}
-          onChange={e => setNftData({ ...nftData, name: e.target.value })}
+          defaultValue={asset.nft.name}
+          onChange={e => setAsset({ ...asset, nft: { ...asset.nft, name: e.target.value } })}
           placeholder="NFT Name"
         />
         <Input
           label="NFT Description"
           name="description"
           textarea
-          defaultValue={nftData.description}
-          onChange={e => setNftData({ ...nftData, description: e.target.value })}
+          defaultValue={asset.nft.description}
+          onChange={e => setAsset({ ...asset, nft: { ...asset.nft, description: e.target.value } })}
           placeholder="This token represents my physical asset located at..."
         />
         <Input
@@ -99,30 +107,20 @@ export const DescribeForm = ({ state, jsonData }: { state: State; jsonData: any 
               onChange={e => {
                 const newCategory = e.target.value;
                 if (newCategory !== null) {
-                  // clear attributes
-                  const assetAttributes: any = [];
-                  jsonData.map((e: any) => {
-                    e.attributes.map((a: any) => {
-                      assetAttributes.push(a.name);
-                    });
+                  setAsset({
+                    ...asset,
+                    nft: { ...asset.nft, attributes: getAssetFromCategory(newCategory).nft.attributes },
+                    attributeDetails: getAssetFromCategory(newCategory).attributeDetails,
+                    category: newCategory,
                   });
-                  assetAttributes.map((e: any) => {
-                    eval(`delete nftData.${e};`);
-                  });
-
-                  setNftData({ ...nftData, category: newCategory });
-                  const isTheOne = (element: any) => element.assetClass === newCategory;
-                  const indx: number = jsonData.findIndex(isTheOne);
-                  setMenuIndex(indx);
-                  setAssetAttr(eval(`jsonData[${indx}].attributes`));
                 }
               }}
-              value={nftData.category}
-              placeholder="Select option"
+              value={asset.category}
+              // placeholder="Select option"
               className="placeholder:"
             >
               <option value="art">Art</option>
-              <option value="real_estate">Real Estate</option>
+              <option value="realEstate">Real Estate</option>
               <option value="car">Car</option>
             </Select>
           }
@@ -136,19 +134,19 @@ export const DescribeForm = ({ state, jsonData }: { state: State; jsonData: any 
               <InputLabel>Value </InputLabel>
             </Box>
           </HStack>
-          {assetAttr.map((attr: any) => (
+          {asset.nft.attributes.map((attr: any, indx: any) => (
             // make the key unique
-            <HStack key={attr.name} mb={2}>
+            <HStack key={attr.trait_type} mb={2}>
               <Box width={"50%"} pr={1}>
-                <InputLabel>{attr.name}</InputLabel>
+                <InputLabel>{attr.trait_type}</InputLabel>
               </Box>
               <Box width={"50%"}>
                 <Input
-                  defaultValue={attr.defaultValue}
-                  name={attr.name}
-                  type={attr.inputType}
+                  defaultValue={asset.attributeDetails[indx].defaultValue}
+                  name={attr.trait_type}
+                  type={asset.attributeDetails[indx].inputType}
                   label={"none"}
-                  placeholder={attr.defaultValue}
+                  placeholder={asset.attributeDetails[indx].defaultValue}
                   onChange={handleAttributeChange}
                 />
               </Box>
@@ -158,20 +156,17 @@ export const DescribeForm = ({ state, jsonData }: { state: State; jsonData: any 
         <Box>
           <InputLabel>Linked Document</InputLabel>
           <Input
-            value={getAttribute(chainData.linkedPdfKey, nftData.attributes)?.value}
+            value={getAttribute(chainData.linkedPdfKey, asset.nft.attributes)?.value}
             onChange={e => {
               const pdfAddressString = e.target.value;
-              const documentAttribute = createAttribute(chainData.linkedPdfKey, pdfAddressString);
-              const cleanedAttributes = cleanAttributes(nftData?.attributes, chainData.linkedPdfKey);
-              const updatedAttributes = [...cleanedAttributes, documentAttribute];
-              setNftData({
-                ...nftData,
-                attributes: updatedAttributes,
+              setAsset({
+                ...asset,
+                nft: { ...asset.nft, external_url: pdfAddressString },
               });
             }}
             placeholder="https://website.com/document.pdf"
           />
-          <div className="divider">OR</div>
+          {/* <div className="divider">OR</div>
           <UploadInput
             type="pdf"
             loading={pdfUploading}
@@ -179,7 +174,7 @@ export const DescribeForm = ({ state, jsonData }: { state: State; jsonData: any 
             height={"20vh"}
             success={!!pdfAttribute}
             acceptedFileType="pdf"
-          />
+          /> */}
         </Box>
         {error && <Alert type="error" message={error} />}
         <Button colorScheme={"teal"} isDisabled={!canProceed()} onClick={() => setStage(stage + 1)}>

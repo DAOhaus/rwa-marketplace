@@ -1,5 +1,5 @@
 import React from "react";
-import { State } from "./ListingForm";
+import { State } from "../page";
 
 // import { State, Erc20Data } from "./ListingForm";
 

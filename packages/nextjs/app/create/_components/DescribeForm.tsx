@@ -1,6 +1,7 @@
 // TODO: bring over the IPFS upload service but don't call it "fleek"
 // TODO: bring over the IPFS upload service but don't call it "fleek"
 import { useState } from "react";
+import { State } from "./ListingForm";
 import UploadInput from "./UploadInput";
 import { Box, Flex, HStack, Select, Stack } from "@chakra-ui/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
@@ -16,17 +17,8 @@ import { createAttribute, getAttribute } from "~~/utils/helpers";
 const cleanAttributes = (attributes: Array<{ trait_type: string }>, duplicateString: string) =>
   (attributes || []).filter((att: { trait_type: string }) => att.trait_type != duplicateString);
 
-export const DescribeForm = ({
-  setStage,
-  stage,
-  jsonData,
-}: {
-  setStage: (arg0: number) => void;
-  stage: number;
-  jsonData: any;
-}) => {
-  // const [nftData, setNftData] = useGlobalState(nft);
-  const [nftData, setNftData] = useState<any>({});
+export const DescribeForm = ({ state, jsonData }: { state: State; jsonData: any }) => {
+  const { stage, setStage, nftData, setNftData } = state;
   const [error, setError] = useState("");
   const [pdfUploading, setPdfUploading] = useState<boolean>(false);
   const pdfAttribute = getAttribute(chainData.linkedPdfKey, nftData.attributes);

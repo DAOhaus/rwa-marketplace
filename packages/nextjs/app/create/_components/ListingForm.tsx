@@ -6,8 +6,8 @@
 import { createRef, useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DescribeForm } from "./DescribeForm";
-// import { MintForm } from "./_components/MintForm";
-// import { TokenizeForm } from "./_components/TokenizeForm";
+import { MintForm } from "./MintForm";
+import { TokenizeForm } from "./TokenizeForm";
 import { Box, Grid, Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react";
 import axios from "axios";
 import { isObject } from "lodash";
@@ -24,6 +24,21 @@ enum Stage {
   attest,
 }
 
+export interface Erc20Data {
+  name: string;
+  symbol: string;
+  supply: number;
+}
+
+export interface State {
+  stage: number;
+  setStage: (arg0: number) => void;
+  nftData: any;
+  setNftData: (arg0: any) => void;
+  erc20Data: Erc20Data;
+  setErc20Data: (arg0: any) => void;
+}
+
 // interface NFTType {
 //   imageUrl?: string;
 //   name?: string;
@@ -36,11 +51,20 @@ const ListingForm = ({ jsonData }: any) => {
   //@ts-expect-error
   const defaultStage = Stage[searchParams.get("step") || "describe"];
   const id = searchParams.get("id");
-  // const [nftData, setNftData] = useGlobalState(nft);
   const [nftData, setNftData] = useState<any>({});
   const [stage, setStage] = useState<number>(defaultStage);
+  const [erc20Data, setErc20Data] = useState<Erc20Data>({ name: "", symbol: "", supply: 0 });
   const [existingData, setData] = useState<any>();
   const router = useRouter();
+
+  const state: State = {
+    stage: stage,
+    setStage: setStage,
+    nftData: nftData,
+    setNftData: setNftData,
+    erc20Data: erc20Data,
+    setErc20Data: setErc20Data,
+  };
 
   // const tokenURI = useScaffoldContractRead({
   //   contractName: "NFTFactory",
@@ -149,10 +173,14 @@ const ListingForm = ({ jsonData }: any) => {
 
           <TabPanels>
             <TabPanel p={0}>
-              <DescribeForm setStage={setStage} stage={stage} jsonData={jsonData} />
+              <DescribeForm state={state} jsonData={jsonData} />
             </TabPanel>
-            <TabPanel>{/* <TokenizeForm setStage={setStage} stage={stage} /> */}</TabPanel>
-            <TabPanel>{/* <MintForm setStage={setStage} stage={stage} /> */}</TabPanel>
+            <TabPanel>
+              <TokenizeForm state={state} />
+            </TabPanel>
+            <TabPanel>
+              <MintForm state={state} />
+            </TabPanel>
           </TabPanels>
         </Tabs>
       </Box>

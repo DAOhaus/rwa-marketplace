@@ -36,8 +36,7 @@ contract ERC20OwnableKyc is ERC20Ownable {
 		uint256 linkedNFTId_,
 		address[] memory membersToFund,
 		uint256[] memory amountsToFund,
-		address kycContract_,
-		address sanctionsContract_
+		address kycContract_
 	)
 		ERC20Ownable(
 			name_,
@@ -83,16 +82,6 @@ contract ERC20OwnableKyc is ERC20Ownable {
 	function setKYCContract(address kycContract_) external onlyOwner {
 		kycContract = kycContract_;
 		emit KYCContractSet(kycContract_);
-	}
-
-	function _transferOwnership(address newOwner) internal override {
-		address oldOwner = owner();
-		super._transferOwnership(newOwner);
-		// Check if the factory address is defined and not an empty address
-		if (factory != address(0)) {
-			ERC20FactoryKyc(factory).notifyOwnershipChange(oldOwner, newOwner);
-		}
-		emit OwnershipTransferred(oldOwner, newOwner);
 	}
 
 	function _beforeTokenTransfer(

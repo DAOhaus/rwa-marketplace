@@ -5,8 +5,6 @@ import "./ERC20OwnableKyc.sol";
 import "./ERC20Factory.sol";
 
 contract ERC20FactoryKyc is ERC20Factory {
-	string public override name = "LEGT NFT KYC Factory";
-
 	event WhitelistUpdated(
 		address indexed token,
 		address indexed account,

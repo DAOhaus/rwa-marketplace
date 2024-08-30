@@ -12,8 +12,9 @@ contract ERC20FactoryKyc is ERC20Factory {
 	);
 	event WhitelistStatusChanged(address indexed token, bool isEnabled);
 	event KYCCheckStatusChanged(address indexed token, bool isEnabled);
-	event SanctionsCheckStatusChanged(address indexed token, bool isEnabled);
 	event KYCContractSet(address indexed token, address kycContract);
+
+	constructor(string memory _name) ERC20Factory(_name) {}
 
 	function createToken(
 		string memory name_,
@@ -44,7 +45,7 @@ contract ERC20FactoryKyc is ERC20Factory {
 	}
 
 	// Set Whitelist for an address on the ERC20Ownable contract
-	function setWhitelist(
+	function updateWhitelist(
 		address token,
 		address account,
 		bool isWhitelisted
@@ -75,19 +76,6 @@ contract ERC20FactoryKyc is ERC20Factory {
 		);
 		ERC20OwnableKyc(token).toggleKYCCheck(enabled);
 		emit KYCCheckStatusChanged(token, enabled);
-	}
-
-	// Toggle the sanctions check functionality on/off
-	function toggleSanctionsCheck(
-		address token,
-		bool enabled
-	) external onlyOwner {
-		require(
-			ERC20OwnableKyc(token).factory() == address(this),
-			"Invalid token"
-		);
-		ERC20OwnableKyc(token).toggleSanctionsCheck(enabled);
-		emit SanctionsCheckStatusChanged(token, enabled);
 	}
 
 	// Set the KYC contract address on the ERC20Ownable contract

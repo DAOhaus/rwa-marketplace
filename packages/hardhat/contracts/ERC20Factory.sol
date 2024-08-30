@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./ERC20Ownable.sol";
 
 contract ERC20Factory is Ownable {
-	string public name = "LEGT NFT Factory";
+	string public name;
 	mapping(address => address[]) public tokensByOwner;
 	address[] public allTokens;
 
@@ -18,8 +18,9 @@ contract ERC20Factory is Ownable {
 	event TokenLocked(address indexed token);
 	event TokenUnlocked(address indexed token);
 
-	constructor() Ownable() {
+	constructor(string memory _name) Ownable() {
 		transferOwnership(msg.sender);
+		name = _name;
 	}
 
 	function createToken(

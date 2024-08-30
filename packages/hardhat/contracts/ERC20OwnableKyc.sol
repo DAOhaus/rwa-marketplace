@@ -4,12 +4,9 @@ pragma solidity 0.8.19;
 import "./ERC20FactoryKyc.sol";
 import "./ERC20Ownable.sol";
 
-interface IKYC {
-	function isKYC(address _address) external view returns (bool);
-}
-
-interface ISanctions {
-	function isSanctionsSafe(address _account) external view returns (bool);
+interface IKintoKYC {
+	function isKYC(address user) external view returns (bool);
+	function isSanctionsSafe(address user) external view returns (bool);
 }
 
 contract ERC20OwnableKyc is ERC20Ownable {
@@ -17,7 +14,6 @@ contract ERC20OwnableKyc is ERC20Ownable {
 	mapping(address => bool) private whitelist;
 	bool public whitelistEnabled = false;
 	bool public kycCheckEnabled = false;
-	bool public sanctionsCheckEnabled = false;
 	address public kycContract;
 
 	// Events for whitelist and KYC/sanctions checks
@@ -73,12 +69,6 @@ contract ERC20OwnableKyc is ERC20Ownable {
 		emit KYCCheckStatusChanged(enabled);
 	}
 
-	// Function to enable/disable sanctions checks
-	function toggleSanctionsCheck(bool enabled) external onlyOwner {
-		sanctionsCheckEnabled = enabled;
-		emit SanctionsCheckStatusChanged(enabled);
-	}
-
 	function setKYCContract(address kycContract_) external onlyOwner {
 		kycContract = kycContract_;
 		emit KYCContractSet(kycContract_);
@@ -99,16 +89,9 @@ contract ERC20OwnableKyc is ERC20Ownable {
 		// Check KYC
 		if (kycCheckEnabled) {
 			require(
-				IKYC(kycContract).isKYC(to),
+				IKintoKYC(kycContract).isKYC(to) &&
+					IKintoKYC(kycContract).isSanctionsSafe(to),
 				"Recipient has not passed KYC"
-			);
-		}
-
-		// Check sanctions
-		if (sanctionsCheckEnabled) {
-			require(
-				ISanctions(kycContract).isSanctionsSafe(to),
-				"Recipient is sanctioned"
 			);
 		}
 	}

@@ -13,19 +13,14 @@ contract KYCNFTFactory is NFTFactory {
 	using Counters for Counters.Counter;
 	Counters.Counter private _tokenIdCounter;
 
-	struct NFTData {
-		string status;
-		address linkedToken;
-		string[] linkedTokenInterfaces;
-		bool locked;
-		bool paused;
+	struct NFTKYCData {
 		bool kycCheckEnabled;
 		bool whitelistEnabled;
 		address kycContract;
 		mapping(address => bool) whitelist;
 	}
 
-	mapping(uint256 => NFTData) public override nftData;
+	mapping(uint256 => NFTKYCData) public nftKycData;
 
 	event KYCCheckEnabled(uint256 tokenId, bool enabled);
 	event SanctionsCheckEnabled(uint256 tokenId, bool enabled);
@@ -45,7 +40,6 @@ contract KYCNFTFactory is NFTFactory {
 		address linkedToken,
 		string[] memory linkedTokenInterfaces,
 		bool kycCheckEnabled,
-		bool sanctionsCheckEnabled,
 		bool whitelistEnabled,
 		address kycContract,
 		address[] memory whitelistAddresses // New parameter for whitelist addresses
@@ -66,13 +60,13 @@ contract KYCNFTFactory is NFTFactory {
 		nftData[tokenId].linkedTokenInterfaces = linkedTokenInterfaces;
 		nftData[tokenId].locked = false;
 		nftData[tokenId].paused = false;
-		nftData[tokenId].kycCheckEnabled = kycCheckEnabled;
-		nftData[tokenId].whitelistEnabled = whitelistEnabled;
-		nftData[tokenId].kycContract = kycContract;
+		nftKycData[tokenId].kycCheckEnabled = kycCheckEnabled;
+		nftKycData[tokenId].whitelistEnabled = whitelistEnabled;
+		nftKycData[tokenId].kycContract = kycContract;
 
 		// Update the whitelist mapping separately
 		for (uint256 i = 0; i < whitelistAddresses.length; i++) {
-			nftData[tokenId].whitelist[whitelistAddresses[i]] = true;
+			nftKycData[tokenId].whitelist[whitelistAddresses[i]] = true;
 		}
 
 		tokensByAddress[to].push(tokenId); // Add token to the new owner's list
@@ -86,7 +80,6 @@ contract KYCNFTFactory is NFTFactory {
 		string memory status,
 		string memory tokenURI,
 		bool kycCheckEnabled,
-		bool sanctionsCheckEnabled, // Assuming this might be needed, though it's not in struct
 		bool whitelistEnabled,
 		address kycContract,
 		address[] memory whitelistAddresses
@@ -103,23 +96,23 @@ contract KYCNFTFactory is NFTFactory {
 
 		// Set kycCheckEnabled if provided
 		if (kycCheckEnabled) {
-			nftData[tokenId].kycCheckEnabled = kycCheckEnabled;
+			nftKycData[tokenId].kycCheckEnabled = kycCheckEnabled;
 		}
 
 		// Set whitelistEnabled if provided
 		if (whitelistEnabled) {
-			nftData[tokenId].whitelistEnabled = whitelistEnabled;
+			nftKycData[tokenId].whitelistEnabled = whitelistEnabled;
 		}
 
 		// Set kycContract if a valid address is provided
 		if (kycContract != address(0)) {
-			nftData[tokenId].kycContract = kycContract;
+			nftKycData[tokenId].kycContract = kycContract;
 		}
 
 		// Set whitelist addresses if provided
 		if (whitelistAddresses.length > 0) {
 			for (uint256 i = 0; i < whitelistAddresses.length; i++) {
-				nftData[tokenId].whitelist[whitelistAddresses[i]] = true;
+				nftKycData[tokenId].whitelist[whitelistAddresses[i]] = true;
 			}
 		}
 	}
@@ -133,18 +126,20 @@ contract KYCNFTFactory is NFTFactory {
 		require(!nftData[tokenId].paused, "Token is paused");
 
 		// Check if KYC is enabled and validate with KYC contract
-		if (nftData[tokenId].kycCheckEnabled) {
+		if (nftKycData[tokenId].kycCheckEnabled) {
 			require(
-				IKintoKYC(nftData[tokenId].kycContract).isKYC(to) &&
-					IKintoKYC(nftData[tokenId].kycContract).isSanctionsSafe(to),
+				IKintoKYC(nftKycData[tokenId].kycContract).isKYC(to) &&
+					IKintoKYC(nftKycData[tokenId].kycContract).isSanctionsSafe(
+						to
+					),
 				"Recipient has not passed KYC or is not SanctionsSafe"
 			);
 		}
 
 		// Check if whitelist is enabled and the recipient is in the whitelist
-		if (nftData[tokenId].whitelistEnabled) {
+		if (nftKycData[tokenId].whitelistEnabled) {
 			require(
-				nftData[tokenId].whitelist[to],
+				nftKycData[tokenId].whitelist[to],
 				"Recipient is not in the whitelist"
 			);
 		}

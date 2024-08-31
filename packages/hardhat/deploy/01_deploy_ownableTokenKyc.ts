@@ -22,19 +22,30 @@ const deployTokenContract: DeployFunction = async function (hre: HardhatRuntimeE
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
-  await deploy("ERC20Factory", {
+  await deploy("ERC20Ownable", {
     from: deployer,
+    // Contract constructor arguments
     log: true,
-    args: ["LEGT Token Factory"],
+    args: [
+      "Deposit Token",
+      "DPT",
+      deployer,
+      "0x0000000000000000000000000000000000000000",
+      "0x0000000000000000000000000000000000000000",
+      0,
+      [deployer],
+      ["100000000000000000000"],
+    ],
+    // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
+    // automatically mining the contract deployment transaction. There is no effect on live networks.
     autoMine: true,
   });
-  const contract = await hre.ethers.getContract<Contract>("ERC20Factory", deployer);
-  const factoryAddress = await contract.getAddress();
-  console.log("👋 Minted ERC20 Factory", factoryAddress);
+  const contract = await hre.ethers.getContract<Contract>("ERC20Ownable", deployer);
+  console.log("👋 Minted ERC20 Ownable", await contract.name());
 };
 
 export default deployTokenContract;
 
 // Tags are useful if you have multiple deploy files and only want to run one of them.
-// e.g. yarn deploy --tags ERC20Factory
-deployTokenContract.tags = ["ERC20Factory"];
+// e.g. yarn deploy --tags ERC20Ownable
+deployTokenContract.tags = ["ERC20Ownable"];

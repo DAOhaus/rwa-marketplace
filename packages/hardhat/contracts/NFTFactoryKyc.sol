@@ -9,7 +9,7 @@ interface IKintoKYC {
 	function isSanctionsSafe(address user) external view returns (bool);
 }
 
-contract KYCNFTFactory is NFTFactory {
+contract NFTFactoryKyc is NFTFactory {
 	using Counters for Counters.Counter;
 	Counters.Counter private _tokenIdCounter;
 

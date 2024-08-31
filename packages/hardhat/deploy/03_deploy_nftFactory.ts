@@ -25,6 +25,7 @@ const deployTokenContract: DeployFunction = async function (hre: HardhatRuntimeE
   await deploy("NFTFactory", {
     from: deployer,
     log: true,
+    args: ["NFTFactory", "NFTF"],
     autoMine: true,
   });
   const nft = await hre.ethers.getContract<Contract>("NFTFactory", deployer);

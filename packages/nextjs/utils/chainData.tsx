@@ -29,6 +29,7 @@ const chainData: ChainData = {
   linkedPoolKey: "Liquidity Pool",
   baseIPFSUrl: "https://ipfs-gateway.legt.co/ipfs/",
   defaultPDFHash: "bafybeicqz376dgkrmrykjcrdafclqke4bzzqao3yymbbly4fjr4kdwttii",
+  kycContractAddress: "0x33F28C3a636B38683a38987100723f2e2d3d038e",
   31337: {
     stable: "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
   },

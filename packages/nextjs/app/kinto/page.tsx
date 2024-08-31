@@ -33,17 +33,16 @@ interface KYCViewerInfo {
 }
 
 const counterAbi = [
-  { type: "constructor", stateMutability: "nonpayable" },
+  { type: "constructor", inputs: [], stateMutability: "nonpayable" },
   {
     type: "function",
     name: "count",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
     stateMutability: "view",
   },
-  { type: "function", name: "increment", stateMutability: "nonpayable" },
+  { type: "function", name: "increment", inputs: [], outputs: [], stateMutability: "nonpayable" },
 ];
-
-// { type: string; stateMutability: string; name ?: undefined; outputs ?: undefined; }
-// { type: string; name: string; outputs: { name: string; type: string; internalType: string; } []; stateMutability: string; }
 
 const kinto = defineChain({
   id: 7887,

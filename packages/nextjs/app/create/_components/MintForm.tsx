@@ -100,7 +100,7 @@ export const MintForm = ({ state }: { state: State }) => {
       console.log(events);
     }
     console.log(state);
-  }, [events]);
+  }, [events]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // function randomInRange(min: number, max: number) {
   //   return Math.random() * (max - min) + min;

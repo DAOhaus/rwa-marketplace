@@ -25,6 +25,8 @@ export interface Asset {
     defaultValue: any;
   }[];
   category: string;
+  id: bigint;
+  receipt: any;
 }
 
 export const art: Asset = {
@@ -34,21 +36,25 @@ export const art: Asset = {
     name: "",
     external_url: "",
     attributes: [
-      { trait_type: "title", value: "" },
-      { trait_type: "artist", value: "" },
+      // change the values?
+      { trait_type: "title", value: "Title" },
+      { trait_type: "artist", value: "Artist" },
       { trait_type: "year created", value: "" },
       { trait_type: "medium", value: "" },
       { trait_type: "dimensions", value: "" },
     ],
   },
   attributeDetails: [
-    { required: true, inputType: "text", defaultValue: "" },
-    { required: true, inputType: "text", defaultValue: "" },
+    // change the defaultValues?
+    { required: true, inputType: "text", defaultValue: "Title" },
+    { required: true, inputType: "text", defaultValue: "Artist" },
     { required: false, inputType: "number", defaultValue: "0" },
     { required: false, inputType: "text", defaultValue: "" },
     { required: false, inputType: "text", defaultValue: "" },
   ],
   category: "art",
+  id: BigInt(0),
+  receipt: {},
 };
 export const realEstate: Asset = {
   nft: {
@@ -74,6 +80,8 @@ export const realEstate: Asset = {
     { required: false, inputType: "number", defaultValue: "0" },
   ],
   category: "realEstate",
+  id: BigInt(0),
+  receipt: {},
 };
 export const car: Asset = {
   nft: {
@@ -97,4 +105,6 @@ export const car: Asset = {
     { required: false, inputType: "number", defaultValue: "0" },
   ],
   category: "car",
+  id: BigInt(0),
+  receipt: {},
 };

@@ -29,6 +29,7 @@ export interface Erc20Data {
   symbol: string;
   supply: number;
   address: any;
+  receipt: any;
 }
 
 export interface State {
@@ -55,7 +56,13 @@ export default function Page() {
   const [asset, setAsset] = useState<any>(art);
   const [stage, setStage] = useState<number>(defaultStage);
   // change the initial erc20Data
-  const [erc20Data, setErc20Data] = useState<Erc20Data>({ name: "", symbol: "", supply: 0, address: 0 });
+  const [erc20Data, setErc20Data] = useState<Erc20Data>({
+    name: "myT",
+    symbol: "myS",
+    supply: 100,
+    address: "",
+    receipt: {},
+  });
   const [existingData, setData] = useState<any>();
   const router = useRouter();
 

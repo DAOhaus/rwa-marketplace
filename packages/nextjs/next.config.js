@@ -1,4 +1,7 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 // @ts-check
+const fs = require("fs");
+const path = require("path");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -14,6 +17,13 @@ const nextConfig = {
     config.externals.push("pino-pretty", "lokijs", "encoding");
     return config;
   },
+  // devServer: devServerConfig => {
+  //   devServerConfig.https = {
+  //     key: fs.readFileSync(path.join(__dirname, "dev.kinto.xyz+2-key.pem")),
+  //     cert: fs.readFileSync(path.join(__dirname, "dev.kinto.xyz+2.pem")),
+  //   };
+  //   return devServerConfig;
+  // },
 };
 
 module.exports = nextConfig;

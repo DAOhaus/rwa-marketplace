@@ -21,6 +21,9 @@ interface ChainData {
   linkedPdfKey: string;
   linkedPoolKey: string;
   baseIPFSUrl: string;
+  kycChainId: number;
+  kycContractAddress: string;
+  nftFactoryKycAddress: string;
 }
 const chainData: ChainData = {
   linkedTokenKey: "Linked Token",
@@ -30,6 +33,8 @@ const chainData: ChainData = {
   baseIPFSUrl: "https://ipfs-gateway.legt.co/ipfs/",
   defaultPDFHash: "bafybeicqz376dgkrmrykjcrdafclqke4bzzqao3yymbbly4fjr4kdwttii",
   kycContractAddress: "0x33F28C3a636B38683a38987100723f2e2d3d038e",
+  kycChainId: 7887,
+  nftFactoryKycAddress: "0xe09d66ab872Da89b2d875E7c86cBe7cC5e3667EA",
   31337: {
     stable: "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
   },

@@ -2,8 +2,6 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { Contract } from "ethers";
 
-const KINTOKYCADDRESS = "0x33F28C3a636B38683a38987100723f2e2d3d038e";
-
 /**
  * Deploys a contract named "YourContract" using the deployer account and
  * constructor arguments set to the deployer address
@@ -24,10 +22,10 @@ const deployTokenContract: DeployFunction = async function (hre: HardhatRuntimeE
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
-  await deploy("ERC20FactoryKyc", {
+  await deploy("ERC20Factory", {
     from: deployer,
     log: true,
-    args: ["KYC Token Factory"],
+    args: ["ERC20Factory"],
     autoMine: true,
   });
   const contract = await hre.ethers.getContract<Contract>("ERC20Factory", deployer);
@@ -37,7 +35,7 @@ const deployTokenContract: DeployFunction = async function (hre: HardhatRuntimeE
   //
   // STBL
   //
-  await deploy("ERC20OwnableKyc", {
+  await deploy("ERC20Ownable", {
     from: deployer,
     log: true,
     args: [
@@ -49,11 +47,10 @@ const deployTokenContract: DeployFunction = async function (hre: HardhatRuntimeE
       0,
       [deployer],
       ["100000000000000000000000000"],
-      KINTOKYCADDRESS,
     ],
     autoMine: true,
   });
-  const stable = await hre.ethers.getContract<Contract>("ERC20OwnableKyc", deployer);
+  const stable = await hre.ethers.getContract<Contract>("ERC20Ownable", deployer);
   await stable.transferOwnership(deployer);
   const s_address = await stable.getAddress();
   const s_name = await stable.name();
@@ -62,38 +59,37 @@ const deployTokenContract: DeployFunction = async function (hre: HardhatRuntimeE
   //
   // LEGT
   //
-  // await deploy("ERC20OwnableKyc", {
-  //   from: deployer,
-  //   log: true,
-  //   args: [
-  //     "LEGT Governance Token",
-  //     "LEGT",
-  //     deployer,
-  //     factoryAddress,
-  //     "0x0000000000000000000000000000000000000000",
-  //     0,
-  //     [deployer],
-  //     ["100000000000000000000000000"],
-  //     KINTOKYCADDRESS,
-  //   ],
-  //   autoMine: true,
-  // });
-  // const governance = await hre.ethers.getContract<Contract>("ERC20OwnableKyc", deployer);
-  // await governance.transferOwnership(deployer);
-  // const g_address = await governance.getAddress();
-  // const g_name = await governance.name();
-  // console.log(`✅ ${g_name}`, g_address);
+  await deploy("ERC20Ownable", {
+    from: deployer,
+    log: true,
+    args: [
+      "LEGT Governance Token",
+      "LEGT",
+      deployer,
+      factoryAddress,
+      "0x0000000000000000000000000000000000000000",
+      0,
+      [deployer],
+      ["100000000000000000000000000"],
+    ],
+    autoMine: true,
+  });
+  const governance = await hre.ethers.getContract<Contract>("ERC20Ownable", deployer);
+  await governance.transferOwnership(deployer);
+  const g_address = await governance.getAddress();
+  const g_name = await governance.name();
+  console.log(`✅ ${g_name}`, g_address);
 
   //
   // NFT FACTORY
   //
-  await deploy("NFTFactoryKyc", {
+  await deploy("NFTFactory", {
     from: deployer,
     log: true,
-    args: ["KYC NFT Factory", "KYCNFT"],
+    args: ["NFTFactory", "NFTF"],
     autoMine: true,
   });
-  const nft = await hre.ethers.getContract<Contract>("NFTFactoryKyc", deployer);
+  const nft = await hre.ethers.getContract<Contract>("NFTFactory", deployer);
   const nft_address = await nft.getAddress();
   const nft_name = await nft.name();
   console.log(`✅ ${nft_name}`, nft_address);
@@ -101,15 +97,15 @@ const deployTokenContract: DeployFunction = async function (hre: HardhatRuntimeE
   //
   // TOKEN SALE
   //
-  //   await deploy("TokenSale", {
-  //     from: deployer,
-  //     log: true,
-  //     args: [deployer, deployer],
-  //     autoMine: true,
-  //   });
-  //   const sale = await hre.ethers.getContract<Contract>("TokenSale", deployer);
-  //   const sale_address = await sale.getAddress();
-  //   console.log(`✅ Token Sale`, sale_address);
+  await deploy("TokenSale", {
+    from: deployer,
+    log: true,
+    args: [deployer, deployer],
+    autoMine: true,
+  });
+  const sale = await hre.ethers.getContract<Contract>("TokenSale", deployer);
+  const sale_address = await sale.getAddress();
+  console.log(`✅ Token Sale`, sale_address);
 };
 
 export default deployTokenContract;

@@ -23,7 +23,7 @@ contract NFTFactory is ERC721URIStorage, Ownable, Pausable {
 
 	bool public onlyOwnerCanMint = false;
 
-	event TokenMinted(uint256 tokenId, address to);
+	event TokenMinted(uint256 indexed tokenId, address indexed to);
 	event MetadataLocked(uint256 tokenId);
 	event MetadataUnlocked(uint256 tokenId);
 	event TokenPaused(uint256 tokenId);

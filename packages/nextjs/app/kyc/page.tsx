@@ -11,6 +11,7 @@ import { KintoAccountInfo, createKintoSDK } from "kinto-web-sdk";
 import styled from "styled-components";
 import { Address, createPublicClient, defineChain, encodeFunctionData, getContract, http } from "viem";
 import contractsJSON from "~~/abis/7887.json";
+import { Button } from "~~/components";
 import { PageWrapper } from "~~/components";
 // import {
 //   useScaffoldContract,
@@ -63,15 +64,11 @@ const kinto = defineChain({
 const KintoConnect = () => {
   const [accountInfo, setAccountInfo] = useState<KintoAccountInfo | undefined>(undefined);
   const [kycViewerInfo, setKYCViewerInfo] = useState<any | undefined>(undefined);
+  const [loading, setLoading] = useState<boolean>(true);
   const { NFTFactoryKyc } = getAllContracts(chainData.kycChainId);
-  console.log("page info:", NFTFactoryKyc);
+  // console.log("page account, kyc, contract:", accountInfo, kycViewerInfo, NFTFactoryKyc);
   const [nftFactoryName, setNftFactoryName] = useState<string | undefined>(undefined);
-  const [, setLoading] = useState<boolean>(false);
-  // const kintoSDK = createKintoSDK("0x14A1EC9b43c270a61cDD89B6CbdD985935D897fE");
-  // const counterAddress = "0x14A1EC9b43c270a61cDD89B6CbdD985935D897fE" as Address;
   const kintoSDK = createKintoSDK(NFTFactoryKyc.address);
-
-  // const NFTFactoryKycData = useDeployedContractInfo(contractName);
 
   async function kintoLogin() {
     try {
@@ -83,9 +80,6 @@ const KintoConnect = () => {
   }
 
   async function mintNFT() {
-    // const userData = await kintoLogin();
-    // console.log("userData:", userData);
-    console.log("accountInfo:", accountInfo);
     const data = encodeFunctionData({
       abi: NFTFactoryKyc.abi,
       functionName: "mint",
@@ -128,20 +122,26 @@ const KintoConnect = () => {
         transport: http(),
       });
 
-      const counter = getContract({
+      const nftFactoryContract = getContract({
         address: NFTFactoryKyc.address as Address,
         abi: NFTFactoryKyc.abi,
         client: { public: client },
       });
-      const name = await counter.read.name();
+      const name = await nftFactoryContract.read.name();
       setNftFactoryName(name as string);
     }
     async function fetchAccountInfo() {
       try {
-        setAccountInfo(await kintoSDK.connect());
+        console.log("fetching account", accountInfo, kintoSDK);
+        const kintoAccount = await kintoSDK.connect();
+        console.log("set account", kintoAccount, kintoSDK);
+        setAccountInfo(kintoAccount);
+        setLoading(false);
       } catch (error) {
         console.error("Failed to fetch account info:", error);
+        setLoading(false);
       }
+      console.log("account login");
     }
     async function fetchKYCViewerInfo() {
       if (!accountInfo?.walletAddress) return;
@@ -185,13 +185,25 @@ const KintoConnect = () => {
     }
   }, [NFTFactoryKyc.abi, NFTFactoryKyc.address, accountInfo, kintoSDK, kycViewerInfo, nftFactoryName]);
 
+  // if (loading) return <PageWrapper>loading...</PageWrapper>;
+  if (!accountInfo)
+    return (
+      <PageWrapper>
+        <div onClick={kintoLogin}>Login/Signup using Kinto</div>
+      </PageWrapper>
+    );
+
   // todo: add info about the dev portal and link
   return (
     <PageWrapper>
       <WholeWrapper>
         <AppWrapper>
           <ContentWrapper>
-            {!accountInfo && <div onClick={kintoLogin}>Login/Signup</div>}
+            {loading && !accountInfo ? (
+              <div>loading...</div>
+            ) : (
+              <>{!accountInfo && <div onClick={kintoLogin}>Login/Signup</div>}</>
+            )}
             {accountInfo && (
               <BgWrapper>
                 <CounterWrapper>
@@ -215,12 +227,12 @@ const KintoConnect = () => {
                         <div>{accountInfo.walletAddress}</div>
                       </WalletRowValue>
                     </WalletRow>
-                    <WalletRow key="Application Key">
+                    {/* <WalletRow key="Application Key">
                       <WalletRowName>App Key</WalletRowName>
                       <WalletRowValue>
                         <div>{accountInfo.appKey as Address}</div>
                       </WalletRowValue>
-                    </WalletRow>
+                    </WalletRow> */}
                     {kycViewerInfo && (
                       <>
                         <WalletRow key="isIndividual">
@@ -255,7 +267,7 @@ const KintoConnect = () => {
                         </WalletRow>
                       </>
                     )}
-                    <WalletRow key="counter">
+                    <WalletRow key="nftFactoryContract">
                       <WalletRowName>Factory Name</WalletRowName>
                       <WalletRowValue>
                         <ETHValue>{nftFactoryName}</ETHValue>
@@ -263,9 +275,13 @@ const KintoConnect = () => {
                     </WalletRow>
                   </WalletRows>
                   <WalletNotice>
-                    <span>Attention!</span> Only send funds to your wallet address in the Kinto Network
+                    {/* <span>Attention!</span> Only send funds to your wallet address in the Kinto Network */}
                   </WalletNotice>
-                  {accountInfo && <div onClick={mintNFT}>Mint NFT</div>}
+                  {accountInfo && (
+                    <Button colorScheme="blue" onClick={mintNFT}>
+                      Mint NFT
+                    </Button>
+                  )}
                 </CounterWrapper>
               </BgWrapper>
             )}

@@ -2,24 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Erc20Data, State } from "../page";
-import {
-  Box,
-  Checkbox,
-  Code,
-  Flex,
-  HStack,
-  Stack,
-  Step,
-  StepDescription,
-  StepIcon,
-  StepIndicator,
-  StepNumber,
-  StepSeparator,
-  StepStatus,
-  StepTitle,
-  Stepper,
-  useSteps,
-} from "@chakra-ui/react";
+import { Box, Code, Flex, HStack, Stack } from "@chakra-ui/react";
 import { parseEther } from "viem";
 import { useAccount } from "wagmi";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
@@ -46,13 +29,11 @@ export const MintForm = ({ state }: { state: State }) => {
     erc20Data: Erc20Data;
     setErc20Data: (arg0: Erc20Data) => void;
   } = state;
-  //console.log(state);
 
   const router = useRouter();
-  const [loadingStates, setLoadingStates] = useState<{ token?: boolean; nft?: boolean }>({});
   const { address } = useAccount();
   const [error, setError] = useState("");
-  const canProceed = asset.receipt.transactionHash;
+  const canProceed = asset.receipt.transactionHash && erc20Data.address; // could be fooled with 2 half mints (?)
 
   const canStart = () => {
     // TODO add the image url
@@ -97,9 +78,7 @@ export const MintForm = ({ state }: { state: State }) => {
   useEffect(() => {
     if (events !== undefined) {
       setAsset({ ...asset, id: events[0].args.tokenId });
-      console.log(events);
     }
-    console.log(state);
   }, [events]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // function randomInRange(min: number, max: number) {
@@ -116,220 +95,152 @@ export const MintForm = ({ state }: { state: State }) => {
   //   });
   // };
 
-  const steps = canStart()
-    ? [
-        ...[
-          {
-            title: "ERC20 Token",
-            description: "The liquid token linked to your NFT",
-            body: (
-              <>
-                <Code p={3}>
-                  <span className="font-bold">name</span>: {erc20Data.name}
-                  <br></br>
-                  <span className="font-bold">symbol</span>: {erc20Data.symbol}
-                  <br></br>
-                  <span className="font-bold">supply</span>: {erc20Data.supply}
-                  <br></br>
-                </Code>
-              </>
-            ),
-            cta: (
-              <Button
-                mt={4}
-                pointerEvents={loadingStates.token ? "none" : "auto"}
-                isLoading={loadingStates.token}
-                loadingText="Minting"
-                colorScheme="teal"
-                size="sm"
-                onClick={async () => {
-                  if (address !== undefined)
-                    // to refactor or sth
-                    try {
-                      setError("");
-                      setLoadingStates({ token: true });
-                      await erc20Factory(
-                        {
-                          functionName: "createToken",
-                          args: [
-                            erc20Data.name,
-                            erc20Data.symbol,
-                            address,
-                            "0x0000000000000000000000000000000000000000",
-                            BigInt(0),
-                            [address],
-                            [parseEther(String(erc20Data.supply))],
-                          ],
-                        },
-                        {
-                          onBlockConfirmation: txnReceipt => {
-                            console.log("📦 Transaction blockHash", txnReceipt.blockHash);
-
-                            if (Array.isArray(deployedTokens) && deployedTokens.length > 0) {
-                              const lastDeployedToken = deployedTokens.pop();
-                              if (typeof lastDeployedToken === "string") {
-                                setErc20Data({ ...erc20Data, receipt: txnReceipt, address: String(lastDeployedToken) });
-                              }
-                            }
-                          },
-                        },
-                      );
-                      setLoadingStates({ token: false });
-                      setActiveStep(activeStep + 1);
-                    } catch (e) {
-                      console.log("mint error", e);
-                      setError(e as string);
-                      setLoadingStates({ token: false });
-                    }
-                }}
-              >
-                Mint
-              </Button>
-            ),
-            result: (
-              <div className="flex">
-                🥳 <Address address={erc20Data.address} disableAddressLink={true} format="short" size="sm" />
-              </div>
-            ),
-          },
-        ],
-        {
-          title: "NFT Mint",
-          description: "Uploads Token & Metadata to IPFS for NFT",
-          body: (
-            <>
-              <Code p={3} w={"100%"}>
-                <span className="font-bold">name</span>: {asset.nft.name}
-                <br></br>
-                <span className="line-clamp-3">
-                  <span className="font-bold">description</span>: {asset.nft.description}
-                </span>
-                <br></br>
-                <span className="font-bold">attributes</span>:
-                <Box pl={4}>
-                  {asset.nft.attributes.map((attr: any, i: any) => (
-                    <Text display={"block"} key={i}>
-                      <span className="font-bold">{attr.trait_type}</span>: {attr.value}
-                    </Text>
-                  ))}
-                </Box>
-              </Code>
-            </>
-          ),
-          cta: (
-            <div className="flex items-center mt-2 space-x-2">
-              <Button
-                pointerEvents={loadingStates.nft ? "none" : "auto"}
-                isLoading={loadingStates.nft}
-                loadingText="Minting"
-                colorScheme="teal"
-                size="sm"
-                onClick={async () => {
-                  if (address !== undefined)
-                    // to refactor or sth
-                    try {
-                      setError("");
-                      setLoadingStates({ nft: true });
-
-                      // TODO
-                      // let updatedNftData = nftData;
-                      // const returnedImageUrl = await singleUpload(nftData.file, nftData.file.name);
-                      // updatedNftData = {
-                      //   ...nftData,
-                      //   imageUrl: returnedImageUrl
-                      // }
-                      // setNftData(updatedNftData);
-                      // // }
-                      // console.log('nftData', updatedNftData);
-                      // debugger;
-                      // const nftDataString = JSON.stringify(mapNftData(updatedNftData));
-                      // console.log('nftData & String:', nftData, nftDataString, [address, nftDataString, nftData.erc20.deployedTokenAddress, '0x36372b07'])
-                      // debugger;
-
-                      await nftFactory(
-                        {
-                          functionName: "mint",
-                          args: [
-                            address,
-                            "tokenUri", // TODO
-                            erc20Data.address,
-                            [""], // TODO
-                          ],
-                        },
-                        {
-                          onBlockConfirmation: txnReceipt => {
-                            console.log("📦 Transaction blockHash", txnReceipt.blockHash);
-                            setAsset({ ...asset, receipt: txnReceipt });
-                          },
-                        },
-                      );
-                      setLoadingStates({});
-                      setActiveStep(steps.length);
-                      // win_effect();  TODO
-                    } catch (error) {
-                      console.log("nft mint error", error);
-                      setError(error as string);
-                      setLoadingStates({});
-                    }
-                }}
-              >
-                Mint
-              </Button>
-              <Checkbox disabled> IPFS (coming soon)</Checkbox>
-            </div>
-          ),
-          result: (
-            <div className="flex">
-              🥳 <Address address={asset.nft.address} disableAddressLink={true} format="short" size="sm" />
-            </div>
-          ),
-        },
-      ]
-    : [];
-
-  const { activeStep, setActiveStep } = useSteps({
-    index: asset.receipt.transactionHash ? 2 : erc20Data.address ? 1 : 0,
-    // index: 0,
-    count: steps.length,
-  });
-
-  //      <Button onClick={()=>{console.log(state);}}>hehe</Button>
-  /* <Button onClick={()=>{console.log(state);}}>state</Button>
-      <Button onClick={()=>{console.log(events);
-                            if (events!==undefined)
-                              console.log(events[0].args.to);
-                            if (events!==undefined)
-                              console.log(events[0].args.tokenId);}}>events</Button> */
   return (
     <Stack pl={2} pr={4} gap={4}>
-      <Text tiny>
-        We&apos;ll walk you through the mint proccess which takes all the provided information into consideration
-      </Text>
-      <Stepper index={activeStep} orientation="vertical" gap="0">
-        {steps.map((step, index) => (
-          <Step
-            key={index}
-            style={{
-              width: "100%",
-              opacity: `${activeStep === index || activeStep === steps.length ? 1 : 0.35}`,
-            }}
-          >
-            <StepIndicator>
-              <StepStatus complete={<StepIcon />} incomplete={<StepNumber />} active={<StepNumber />} />
-            </StepIndicator>
-            <Box flexShrink="0" width={"100%"} mb={6}>
-              <StepTitle>{step.title}</StepTitle>
-              <StepDescription>{step.description}</StepDescription>
-              <Box mt={2}> {step.body} </Box>
-              {activeStep === index ? step.cta : null}
-              {activeStep > index ? step.result : null}
-            </Box>
-            <StepSeparator />
-          </Step>
-        ))}
-      </Stepper>
+      {/* <Button onClick={()=>{console.log(state);}}>hehe</Button>
+      <Button onClick={()=>{console.log(events);}}>events</Button> */}
+      <Text size={"xl"}>ERC20 Token</Text>
+      <Text>The liquid token linked to your NFT</Text>
+      <Code p={3}>
+        <span className="font-bold">name</span>: {erc20Data.name}
+        <br></br>
+        <span className="font-bold">symbol</span>: {erc20Data.symbol}
+        <br></br>
+        <span className="font-bold">supply</span>: {erc20Data.supply}
+        <br></br>
+      </Code>
+
+      <Text size={"xl"}>NFT Mint</Text>
+      <Text>Uploads Token & Metadata to IPFS for NFT</Text>
+      <Code p={3} w={"100%"}>
+        <span className="font-bold">name</span>: {asset.nft.name}
+        <br></br>
+        <span className="line-clamp-3">
+          <span className="font-bold">description</span>: {asset.nft.description}
+        </span>
+        <br></br>
+        <span className="font-bold">attributes</span>:
+        <Box pl={4}>
+          {asset.nft.attributes.map((attr: any, i: any) => (
+            <Text display={"block"} key={i}>
+              <span className="font-bold">{attr.trait_type}</span>: {attr.value}
+            </Text>
+          ))}
+        </Box>
+      </Code>
+
+      {canStart() ? (
+        <>
+          <div className="flex items-center mt-2 space-x-2">
+            <Button
+              // pointerEvents={loadingStates.nft ? "none" : "auto"}
+              // isLoading={loadingStates.nft}
+              loadingText="Minting"
+              colorScheme="teal"
+              size="sm"
+              onClick={async () => {
+                if (address !== undefined)
+                  try {
+                    setError("");
+                    await erc20Factory(
+                      {
+                        functionName: "createToken",
+                        args: [
+                          erc20Data.name,
+                          erc20Data.symbol,
+                          address,
+                          "0x0000000000000000000000000000000000000000", // address associatedNFT_
+                          BigInt(0), // uint256 associatedNFTId_
+                          [address],
+                          [parseEther(String(erc20Data.supply))],
+                        ],
+                      },
+                      {
+                        onBlockConfirmation: txnReceipt => {
+                          console.log("📦 Transaction blockHash", txnReceipt.blockHash);
+
+                          if (Array.isArray(deployedTokens) && deployedTokens.length > 0) {
+                            const lastDeployedToken = deployedTokens.pop();
+                            if (typeof lastDeployedToken === "string") {
+                              setErc20Data({ ...erc20Data, receipt: txnReceipt, address: String(lastDeployedToken) });
+                            }
+                          }
+                        },
+                      },
+                    );
+                  } catch (e) {
+                    console.log("mint error", e);
+                    setError(e as string);
+                  }
+
+                if (address !== undefined)
+                  try {
+                    setError("");
+                    // TODO
+                    // let updatedNftData = nftData;
+                    // const returnedImageUrl = await singleUpload(nftData.file, nftData.file.name);
+                    // updatedNftData = {
+                    //   ...nftData,
+                    //   imageUrl: returnedImageUrl
+                    // }
+                    // setNftData(updatedNftData);
+                    // // }
+                    // console.log('nftData', updatedNftData);
+                    // debugger;
+                    // const nftDataString = JSON.stringify(mapNftData(updatedNftData));
+                    // console.log('nftData & String:', nftData, nftDataString, [address, nftDataString, nftData.erc20.deployedTokenAddress, '0x36372b07'])
+                    // debugger;
+
+                    let erc20Address;
+                    if (Array.isArray(deployedTokens) && deployedTokens.length > 0) {
+                      const lastDeployedToken = deployedTokens.pop();
+                      if (typeof lastDeployedToken === "string") {
+                        erc20Address = String(lastDeployedToken);
+                      }
+                    }
+                    await nftFactory(
+                      {
+                        functionName: "mint",
+                        args: [
+                          address,
+                          "tokenUri", // TODO
+                          erc20Address,
+                          [""], // TODO
+                        ],
+                      },
+                      {
+                        onBlockConfirmation: txnReceipt => {
+                          console.log("📦 Transaction blockHash", txnReceipt.blockHash);
+                          setAsset({ ...asset, receipt: txnReceipt });
+                        },
+                      },
+                    );
+                    // win_effect();  TODO
+                  } catch (error) {
+                    console.log("nft mint error", error);
+                    setError(error as string);
+                  }
+              }}
+            >
+              Mint
+            </Button>
+          </div>
+          {erc20Data.address ? (
+            <div className="flex">
+              🥳 ERC20 adress:&nbsp;&nbsp;
+              <Address address={erc20Data.address} disableAddressLink={true} format="short" size="sm" />
+            </div>
+          ) : (
+            <></>
+          )}
+          {asset.receipt.transactionHash ? <div className="flex">🥳 NFT id:&nbsp;&nbsp;{String(asset.id)}</div> : <></>}
+        </>
+      ) : (
+        <Text size="base">Fill in the required fields !</Text>
+      )}
+
       {error && <Alert type="error" message={error.toString ? error.toString() : error} />}
-      {!address && <Alert type="error" message="Connect wallet in order to enable mint" />}
+      {!address && <Alert type="error" message="Connect wallet in order to be enable mint" />}
       <HStack>
         <Box width={"50%"}>
           <Button width={"full"} onClick={() => setStage(stage - 1)}>

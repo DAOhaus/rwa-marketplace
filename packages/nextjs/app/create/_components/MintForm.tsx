@@ -37,13 +37,7 @@ export const MintForm = ({ state }: { state: State }) => {
 
   const canStart = () => {
     // TODO add the image url
-    let can =
-      erc20Data.name &&
-      erc20Data.symbol &&
-      erc20Data.supply &&
-      asset.nft.name &&
-      asset.nft.description &&
-      asset.nft.external_url;
+    let can = erc20Data.name && erc20Data.symbol && erc20Data.supply && asset.nft.name && asset.nft.description;
 
     asset.nft.attributes.map(
       (attr: any, indx: any) => (can = can && (asset.attributeDetails[indx].required ? attr.value : true)),
@@ -97,8 +91,20 @@ export const MintForm = ({ state }: { state: State }) => {
 
   return (
     <Stack pl={2} pr={4} gap={4}>
-      {/* <Button onClick={()=>{console.log(state);}}>hehe</Button>
-      <Button onClick={()=>{console.log(events);}}>events</Button> */}
+      <Button
+        onClick={() => {
+          console.log(state);
+        }}
+      >
+        hehe
+      </Button>
+      <Button
+        onClick={() => {
+          console.log(events);
+        }}
+      >
+        events
+      </Button>
       <Text size={"xl"}>ERC20 Token</Text>
       <Text>The liquid token linked to your NFT</Text>
       <Code p={3}>

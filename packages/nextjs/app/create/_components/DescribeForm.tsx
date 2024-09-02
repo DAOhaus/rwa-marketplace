@@ -26,7 +26,7 @@ export const DescribeForm = ({ state }: { state: State }) => {
   // const pdfAttribute = getAttribute(chainData.linkedPdfKey, asset.nft.attributes);
 
   const canProceed = () => {
-    let can = asset.nft.name && asset.nft.description && asset.nft.external_url;
+    let can = asset.nft.name && asset.nft.description;
     asset.nft.attributes.map(
       (attr: any, indx: any) => (can = can && (asset.attributeDetails[indx].required ? attr.value : true)),
     );
@@ -70,6 +70,13 @@ export const DescribeForm = ({ state }: { state: State }) => {
   // };
   return (
     <>
+      <Button
+        onClick={() => {
+          console.log(state);
+        }}
+      >
+        hehe
+      </Button>
       <Stack p={4} gap={4}>
         <Text tiny>
           Describe your token and list useful information about it. Adding additional attributes below will be stored
@@ -134,37 +141,38 @@ export const DescribeForm = ({ state }: { state: State }) => {
               <InputLabel>Value </InputLabel>
             </Box>
           </HStack>
-          {asset.nft.attributes.map((attr: any, indx: any) => (
-            // make the key unique
-            <HStack key={attr.trait_type} mb={2}>
-              <Box width={"50%"} pr={1}>
-                <InputLabel>{attr.trait_type}</InputLabel>
-              </Box>
-              <Box width={"50%"}>
-                <Input
-                  defaultValue={asset.attributeDetails[indx].defaultValue}
-                  name={attr.trait_type}
-                  type={asset.attributeDetails[indx].inputType}
-                  label={"none"}
-                  placeholder={asset.attributeDetails[indx].defaultValue}
-                  onChange={handleAttributeChange}
-                />
-              </Box>
-            </HStack>
-          ))}
+          {asset.nft.attributes.map((attr: any, indx: any) => {
+            if (attr.trait_type !== "file")
+              return (
+                // make the key unique
+                <HStack key={attr.trait_type} mb={2}>
+                  <Box width={"50%"} pr={1}>
+                    <InputLabel>{attr.trait_type}</InputLabel>
+                  </Box>
+                  <Box width={"50%"}>
+                    <Input
+                      defaultValue={asset.attributeDetails[indx].defaultValue}
+                      name={attr.trait_type}
+                      type={asset.attributeDetails[indx].inputType}
+                      label={"none"}
+                      placeholder={asset.attributeDetails[indx].defaultValue}
+                      onChange={handleAttributeChange}
+                    />
+                  </Box>
+                </HStack>
+              );
+          })}
         </Box>
         <Box>
           <InputLabel>Linked Document</InputLabel>
+
           <Input
             value={getAttribute(chainData.linkedPdfKey, asset.nft.attributes)?.value}
-            onChange={e => {
-              const pdfAddressString = e.target.value;
-              setAsset({
-                ...asset,
-                nft: { ...asset.nft, external_url: pdfAddressString },
-              });
-            }}
-            placeholder="https://website.com/document.pdf"
+            name={"file"}
+            type={asset.attributeDetails[asset.attributeDetails.length - 1].inputType}
+            label={"none"}
+            placeholder={asset.attributeDetails[asset.attributeDetails.length - 1].defaultValue}
+            onChange={handleAttributeChange}
           />
           {/* <div className="divider">OR</div>
           <UploadInput

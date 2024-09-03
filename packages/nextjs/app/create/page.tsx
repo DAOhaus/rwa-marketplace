@@ -3,19 +3,17 @@
 // TODO: research better pattern for global state
 // TODO: update useScaffoldContractRead to new version
 // TODO: fix prettier putting in spaces that eslint is throwing errors on
-import { createRef, useCallback, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { createRef, useCallback, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Asset, art } from "./_components/Asset";
 import { DescribeForm } from "./_components/DescribeForm";
 import { MintForm } from "./_components/MintForm";
 import { TokenizeForm } from "./_components/TokenizeForm";
 import { Box, Grid, Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react";
-import axios from "axios";
-import { isObject } from "lodash";
 import { useDropzone } from "react-dropzone";
+import { createThirdwebClient } from "thirdweb";
+import { upload } from "thirdweb/storage";
 import { PhotoIcon } from "@heroicons/react/24/outline";
-
-// import { useScaffoldContractRead } from "~~/hooks/scaffold-eth";
 
 enum Stage {
   describe,
@@ -23,7 +21,6 @@ enum Stage {
   mint,
   attest,
 }
-
 export interface Erc20Data {
   name: string;
   symbol: string;
@@ -31,7 +28,6 @@ export interface Erc20Data {
   address: any;
   receipt: any;
 }
-
 export interface State {
   stage: number;
   setStage: (arg0: number) => void;
@@ -41,18 +37,10 @@ export interface State {
   setErc20Data: (arg0: Erc20Data) => void;
 }
 
-// interface NFTType {
-//   imageUrl?: string;
-//   name?: string;
-//   address?: string;
-//   file?: Blob;
-// }
-
 export default function Page() {
   const searchParams = useSearchParams();
   //@ts-expect-error
   const defaultStage = Stage[searchParams.get("step") || "describe"];
-  const id = searchParams.get("id");
   const [asset, setAsset] = useState<any>(art);
   const [stage, setStage] = useState<number>(defaultStage);
   // change the initial erc20Data
@@ -63,8 +51,6 @@ export default function Page() {
     address: "",
     receipt: {},
   });
-  const [existingData, setData] = useState<any>();
-  const router = useRouter();
 
   const state: State = {
     stage: stage,
@@ -75,35 +61,21 @@ export default function Page() {
     setErc20Data: setErc20Data,
   };
 
-  // const tokenURI = useScaffoldContractRead({
-  //   contractName: "NFTFactory",
-  //   functionName: "tokenURI",
-  //   args: [id],
-  // }).data;
-
-  const tokenURI = "https://url.to.data";
+  const client = createThirdwebClient({
+    clientId: process.env.NEXT_PUBLIC_THIRD_WEB_CLIENT as string,
+  });
 
   const onDrop = useCallback(
-    async (event: any) => {
-      if (asset.address) {
-        // <--- this probably does not work
-        console.log("existing", event);
-      } else {
-        console.log("create", event);
-        let image;
-        try {
-          const isPdf = event[0].type.includes("pdf");
-          const defaultPDFImage =
-            "https://ipfs-gateway.legt.co/ipfs/bafybeicqz376dgkrmrykjcrdafclqke4bzzqao3yymbbly4fjr4kdwttii";
-          image = isPdf ? defaultPDFImage : URL.createObjectURL(event[0]);
-        } catch (error) {}
-        setAsset({ ...asset, file: event[0], image: image });
-      }
-      router.push("/create");
+    async (acceptedFiles: File[]) => {
+      const uri = await upload({ client: client, files: [acceptedFiles[0]] });
+      const actualUri = `https://${process.env.NEXT_PUBLIC_THIRD_WEB_CLIENT}.ipfscdn.io/ipfs/${uri.split("//")[1]}`;
+      console.log(actualUri);
+      setAsset({ ...asset, nft: { ...asset.nft, image: actualUri } });
     },
-    [asset, setAsset, router],
+    [upload],
   );
-  const { getRootProps } = useDropzone({ onDrop });
+
+  const { getRootProps } = useDropzone({ onDrop, accept: { "image/*": [] } });
   const dropZoneRef: React.LegacyRef<HTMLDivElement> | undefined = createRef();
   const handleStageClick = (e: any) => {
     if (process.env.NODE_ENV === "development") {
@@ -111,40 +83,14 @@ export default function Page() {
     }
   };
 
-  const getData = async (url: string) => {
-    const response = await axios.get(url).catch(error => {
-      console.log(error);
-      throw "HTTP Request Error";
-    });
-    const data = response?.data;
-    if (isObject(data)) {
-      return data;
-    } else {
-      console.log("error:", response);
-      throw "Data Improperly Formated Error:" + url;
-    }
-  };
-
-  useEffect(() => {
-    if (!existingData && tokenURI) {
-      getData(tokenURI)
-        .catch((error): any => {
-          console.log(error);
-        })
-        .then(response => {
-          setData(response);
-        });
-    }
-  }, [existingData, tokenURI, id]);
-
-  const existingImageUrl = asset.image || existingData?.image;
   // RENDER
   return (
     <Grid w={"100vw"} h={"full"} templateColumns="repeat(2, 1fr)" gap={0}>
       <Box
         {...getRootProps()}
         ref={dropZoneRef}
-        backgroundImage={existingImageUrl || ""}
+        backgroundImage={asset.nft.image || ""}
+        backgroundRepeat={"no-repeat"}
         backgroundSize={"contain"}
         backgroundPosition={"center"}
         transition={"background-image 1s ease-in-out"}
@@ -154,7 +100,7 @@ export default function Page() {
         borderRight={"1px solid #CBCCE0"}
         className={asset.image ? "auto" : "cursor-pointer"}
       >
-        {!existingImageUrl && (
+        {!asset.nft.image && (
           <div className="flex flex-col justify-center ">
             <PhotoIcon className="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" />
             Upload Image

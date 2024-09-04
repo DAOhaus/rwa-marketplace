@@ -11,7 +11,6 @@ export interface Nft {
   name: string;
   description: string;
   image: string;
-  external_url: string; // for pdf file
   attributes: {
     trait_type: string;
     value: string;
@@ -34,7 +33,6 @@ export const art: Asset = {
     description: "",
     image: "",
     name: "",
-    external_url: "",
     attributes: [
       // change the values?
       { trait_type: "title", value: "Title" },
@@ -42,6 +40,7 @@ export const art: Asset = {
       { trait_type: "year created", value: "" },
       { trait_type: "medium", value: "" },
       { trait_type: "dimensions", value: "" },
+      { trait_type: "file", value: "" },
     ],
   },
   attributeDetails: [
@@ -51,6 +50,7 @@ export const art: Asset = {
     { required: false, inputType: "number", defaultValue: "0" },
     { required: false, inputType: "text", defaultValue: "" },
     { required: false, inputType: "text", defaultValue: "" },
+    { required: true, inputType: "text", defaultValue: "https://website.com/document.pdf" },
   ],
   category: "art",
   id: BigInt(0),
@@ -61,7 +61,6 @@ export const realEstate: Asset = {
     description: "",
     image: "",
     name: "",
-    external_url: "",
     attributes: [
       { trait_type: "address", value: "" },
       { trait_type: "property_type", value: "" },
@@ -69,6 +68,7 @@ export const realEstate: Asset = {
       { trait_type: "year_built", value: "" },
       { trait_type: "bedrooms", value: "" },
       { trait_type: "bathrooms", value: "" },
+      { trait_type: "file", value: "" },
     ],
   },
   attributeDetails: [
@@ -78,6 +78,7 @@ export const realEstate: Asset = {
     { required: false, inputType: "number", defaultValue: "0" },
     { required: false, inputType: "number", defaultValue: "0" },
     { required: false, inputType: "number", defaultValue: "0" },
+    { required: true, inputType: "text", defaultValue: "https://website.com/document.pdf" },
   ],
   category: "realEstate",
   id: BigInt(0),
@@ -88,13 +89,13 @@ export const car: Asset = {
     description: "",
     image: "",
     name: "",
-    external_url: "",
     attributes: [
       { trait_type: "model", value: "" },
       { trait_type: "make", value: "" },
       { trait_type: "year", value: "" },
       { trait_type: "color", value: "" },
       { trait_type: "mileage", value: "" },
+      { trait_type: "file", value: "" },
     ],
   },
   attributeDetails: [
@@ -103,6 +104,7 @@ export const car: Asset = {
     { required: true, inputType: "number", defaultValue: "0" },
     { required: false, inputType: "text", defaultValue: "" },
     { required: false, inputType: "number", defaultValue: "0" },
+    { required: true, inputType: "text", defaultValue: "https://website.com/document.pdf" },
   ],
   category: "car",
   id: BigInt(0),

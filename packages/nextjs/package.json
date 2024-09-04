@@ -41,6 +41,7 @@
     "react-dropzone": "^14.2.3",
     "react-hot-toast": "^2.4.0",
     "styled-components": "^6.1.12",
+    "thirdweb": "^5.49.0",
     "use-debounce": "^8.0.4",
     "usehooks-ts": "^2.13.0",
     "viem": "2.17.4",

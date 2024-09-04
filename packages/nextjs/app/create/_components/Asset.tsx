@@ -80,7 +80,7 @@ export const realEstate: Asset = {
     { required: false, inputType: "number", defaultValue: "0" },
     { required: true, inputType: "text", defaultValue: "https://website.com/document.pdf" },
   ],
-  category: "realEstate",
+  category: "realEstate", //TOANSWER: are these keys for after an NFT is minted or what is the purpose?
   id: BigInt(0),
   receipt: {},
 };

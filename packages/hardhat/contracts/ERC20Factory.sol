@@ -10,11 +10,7 @@ contract ERC20Factory is Ownable {
 	address[] public allTokens;
 
 	event TokenCreated(address indexed owner, address token);
-	event TokenOwnershipUpdated(
-		address indexed oldOwner,
-		address indexed newOwner,
-		address token
-	);
+	event TokenOwnershipUpdated(address indexed oldOwner, address indexed newOwner, address token);
 	event TokenLocked(address indexed token);
 	event TokenUnlocked(address indexed token);
 
@@ -31,7 +27,7 @@ contract ERC20Factory is Ownable {
 		uint256 associatedNFTId_,
 		address[] memory membersToFund,
 		uint256[] memory amountsToFund
-	) external {
+	) external returns (address) {
 		ERC20Ownable token = new ERC20Ownable(
 			name_,
 			symbol_,
@@ -47,11 +43,10 @@ contract ERC20Factory is Ownable {
 		allTokens.push(address(token));
 
 		emit TokenCreated(tokenOwner_, address(token));
+		return address(token);
 	}
 
-	function getTokensByOwner(
-		address owner
-	) external view returns (address[] memory) {
+	function getTokensByOwner(address owner) external view returns (address[] memory) {
 		return tokensByOwner[owner];
 	}
 
@@ -59,14 +54,8 @@ contract ERC20Factory is Ownable {
 		return allTokens;
 	}
 
-	function updateTokenOwnership(
-		address token,
-		address newOwner
-	) external onlyOwner {
-		require(
-			ERC20Ownable(token).factory() == address(this),
-			"Invalid token"
-		);
+	function updateTokenOwnership(address token, address newOwner) external onlyOwner {
+		require(ERC20Ownable(token).factory() == address(this), "Invalid token");
 
 		address oldOwner = ERC20Ownable(token).owner();
 		ERC20Ownable(token).transferOwnership(newOwner);
@@ -75,31 +64,19 @@ contract ERC20Factory is Ownable {
 	}
 
 	function lockToken(address token) external onlyOwner {
-		require(
-			ERC20Ownable(token).factory() == address(this),
-			"Invalid token"
-		);
+		require(ERC20Ownable(token).factory() == address(this), "Invalid token");
 		ERC20Ownable(token).lock();
 		emit TokenLocked(token);
 	}
 
 	function unlockToken(address token) external onlyOwner {
-		require(
-			ERC20Ownable(token).factory() == address(this),
-			"Invalid token"
-		);
+		require(ERC20Ownable(token).factory() == address(this), "Invalid token");
 		ERC20Ownable(token).unlock();
 		emit TokenUnlocked(token);
 	}
 
-	function notifyOwnershipChange(
-		address oldOwner,
-		address newOwner
-	) external {
-		require(
-			ERC20Ownable(msg.sender).factory() == address(this),
-			"Invalid caller"
-		);
+	function notifyOwnershipChange(address oldOwner, address newOwner) external {
+		require(ERC20Ownable(msg.sender).factory() == address(this), "Invalid caller");
 
 		// Check if the token address exists in the allTokens array
 		bool tokenExists = false;
@@ -118,11 +95,7 @@ contract ERC20Factory is Ownable {
 		_updateOwnership(msg.sender, oldOwner, newOwner);
 	}
 
-	function _updateOwnership(
-		address token,
-		address oldOwner,
-		address newOwner
-	) internal {
+	function _updateOwnership(address token, address oldOwner, address newOwner) internal {
 		// Remove token from old owner
 		address[] storage oldOwnerTokens = tokensByOwner[oldOwner];
 		for (uint256 i = 0; i < oldOwnerTokens.length; i++) {

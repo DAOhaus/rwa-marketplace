@@ -2,7 +2,9 @@
 const colors = {
   darkest: "#18181B",
   darkGrey: "#FFFFFFF",
+  grey: "#444449",
   lightGrey: "#ddd",
+  lightestGrey: "#f7f7f7",
   neonGreen: "#84CC16",
 };
 module.exports = {
@@ -16,12 +18,12 @@ module.exports = {
       {
         light: {
           primary: "#93BBFB",
-          //   "primary-content": "#212638",
           secondary: "#DAE8FF",
-          //   "secondary-content": "#212638",
-          //   accent: "#93BBFB",
+          neutral: colors.lightestGrey,
+          accent: "#93BBFB",
+          //   "primary-content": "#212638",
+          // "secondary-content": "#212638",
           //   "accent-content": "#212638",
-          neutral: colors.lightGrey,
           //   "neutral-content": "#ffffff",
           //   "base-100": "#ffffff",
           //   "base-200": "#f4f8ff",
@@ -46,12 +48,12 @@ module.exports = {
       {
         dark: {
           primary: colors.darkest,
-          //     "primary-content": "#F9FBFF",
           secondary: colors.darkGrey,
+          neutral: colors.grey,
+          accent: colors.neonGreen,
+          //     "primary-content": "#F9FBFF",
           //     "secondary-content": colors.darkGrey,
-          //     accent: colors.neonGreen,
           //     "accent-content": "#F9FBFF",
-          neutral: "#444449",
           //     "neutral-content": "#FFFFFF0F",
           //     "base-100": "#385183",
           //     "base-200": "#2A3655",

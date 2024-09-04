@@ -5,10 +5,13 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "./ERC20Factory.sol";
 
 contract NFTFactory is ERC721URIStorage, Ownable, Pausable {
 	using Counters for Counters.Counter;
 	Counters.Counter private _tokenIdCounter;
+	address public linkedTokenFactoryAddress = 0x0000000000000000000000000000000000000000;
+	bool public onlyOwnerCanMint = false;
 
 	struct NFTData {
 		string status;
@@ -21,63 +24,86 @@ contract NFTFactory is ERC721URIStorage, Ownable, Pausable {
 	mapping(uint256 => NFTData) public nftData;
 	mapping(address => uint256[]) public tokensByAddress;
 
-	bool public onlyOwnerCanMint = false;
-
 	event TokenMinted(uint256 indexed tokenId, address indexed to);
 	event MetadataLocked(uint256 tokenId);
 	event MetadataUnlocked(uint256 tokenId);
 	event TokenPaused(uint256 tokenId);
 	event TokenUnpaused(uint256 tokenId);
 
-	constructor(
-		string memory _name,
-		string memory _symbol
-	) ERC721(_name, _symbol) {}
+	constructor(string memory _name, string memory _symbol) ERC721(_name, _symbol) {}
 
 	function setOnlyOwnerCanMint(bool _onlyOwnerCanMint) external onlyOwner {
 		onlyOwnerCanMint = _onlyOwnerCanMint;
+	}
+	function setLinkedTokenFactory(address newFactoryAddress) external onlyOwner {
+		linkedTokenFactoryAddress = newFactoryAddress;
 	}
 
 	function mint(
 		address to,
 		string memory tokenURI,
-		address linkedToken,
-		string[] memory linkedTokenInterfaces
-	) public whenNotPaused {
-		require(
-			!onlyOwnerCanMint || msg.sender == owner(),
-			"Minting is restricted to the owner"
-		);
+		address existingTokenToLink,
+		string[] memory existingLinkedTokenInterfaces,
+		string memory name_,
+		string memory symbol_,
+		address[] memory membersToFund,
+		uint256[] memory amountsToFund
+	) public whenNotPaused returns (uint256) {
+		require(!onlyOwnerCanMint || msg.sender == owner(), "Minting is restricted to the owner");
 
+		// increment id & mint
 		uint256 tokenId = _tokenIdCounter.current();
 		_tokenIdCounter.increment();
 		_safeMint(to, tokenId);
 		_setTokenURI(tokenId, tokenURI);
 
-		tokensByAddress[to].push(tokenId); // Add token to the new owner's list
+		address linkedTokenAddress;
+		string[] memory linkedTokenInterfaces;
 
+		// Check if a existingTokenToLink is provided, or if required parameters are empty
+		if (
+			existingTokenToLink == address(0) &&
+			bytes(name_).length > 0 &&
+			bytes(symbol_).length > 0 &&
+			membersToFund.length > 0 &&
+			amountsToFund.length > 0
+		) {
+			// Create the associated ERC20 token by calling TokenFactory
+			// linkedTokenInterfaces[0] = "ERC20";
+			linkedTokenAddress = ERC20Factory(linkedTokenFactoryAddress).createToken(
+				name_,
+				symbol_,
+				to,
+				address(this),
+				tokenId,
+				membersToFund,
+				amountsToFund
+			);
+		} else {
+			// If no token is created, use the provided existingTokenToLink or set to zero address
+			linkedTokenAddress = existingTokenToLink;
+			linkedTokenInterfaces = existingLinkedTokenInterfaces;
+		}
+
+		// set applicable data to the nft
 		nftData[tokenId] = NFTData({
 			status: "active",
-			linkedToken: linkedToken,
+			linkedToken: linkedTokenAddress,
 			linkedTokenInterfaces: linkedTokenInterfaces,
 			locked: false,
 			paused: false
 		});
 
+		tokensByAddress[to].push(tokenId); // Add token to the new owner's list
+
 		emit TokenMinted(tokenId, to);
+		return tokenId;
 	}
 
 	// Callable by both owner and individual NFT holder
-	function updateNFT(
-		uint256 tokenId,
-		string memory status,
-		string memory tokenURI
-	) public {
+	function updateNFT(uint256 tokenId, string memory status, string memory tokenURI) public {
 		require(_exists(tokenId), "NFT does not exist");
-		require(
-			msg.sender == owner() || msg.sender == ownerOf(tokenId),
-			"Caller is not the owner or NFT owner"
-		);
+		require(msg.sender == owner() || msg.sender == ownerOf(tokenId), "Caller is not the owner or NFT owner");
 		require(!nftData[tokenId].locked, "Metadata is locked");
 
 		if (bytes(status).length > 0) nftData[tokenId].status = status;
@@ -88,10 +114,7 @@ contract NFTFactory is ERC721URIStorage, Ownable, Pausable {
 	// If called by NFT holder, then it is one-way and needs admin to unlock
 	function lock(uint256 tokenId) public {
 		require(_exists(tokenId), "NFT does not exist");
-		require(
-			msg.sender == owner() || msg.sender == ownerOf(tokenId),
-			"Caller is not the owner or NFT owner"
-		);
+		require(msg.sender == owner() || msg.sender == ownerOf(tokenId), "Caller is not the owner or NFT owner");
 
 		nftData[tokenId].locked = true;
 		emit MetadataLocked(tokenId);
@@ -113,20 +136,14 @@ contract NFTFactory is ERC721URIStorage, Ownable, Pausable {
 
 	function pauseToken(uint256 tokenId) public {
 		require(_exists(tokenId), "NFT does not exist");
-		require(
-			msg.sender == owner() || msg.sender == ownerOf(tokenId),
-			"Caller is not the owner or NFT owner"
-		);
+		require(msg.sender == owner() || msg.sender == ownerOf(tokenId), "Caller is not the owner or NFT owner");
 		nftData[tokenId].paused = true;
 		emit TokenPaused(tokenId);
 	}
 
 	function unpauseToken(uint256 tokenId) public onlyOwner {
 		require(_exists(tokenId), "NFT does not exist");
-		require(
-			msg.sender == owner() || msg.sender == ownerOf(tokenId),
-			"Caller is not the owner or NFT owner"
-		);
+		require(msg.sender == owner() || msg.sender == ownerOf(tokenId), "Caller is not the owner or NFT owner");
 		nftData[tokenId].paused = false;
 		emit TokenUnpaused(tokenId);
 	}

@@ -214,23 +214,24 @@ export const MintForm = ({ state }: { state: State }) => {
                         erc20Address = String(lastDeployedToken);
                       }
                     }
-                    await nftFactory(
-                      {
-                        functionName: "mint",
-                        args: [
-                          address,
-                          "tokenUri", // TODO
-                          erc20Address,
-                          [""], // TODO
-                        ],
-                      },
-                      {
-                        onBlockConfirmation: txnReceipt => {
-                          console.log("📦 Transaction blockHash", txnReceipt.blockHash);
-                          setAsset({ ...asset, receipt: txnReceipt });
-                        },
-                      },
-                    );
+                    console.log("refactor contract to do multi-mint", erc20Address, nftFactory);
+                    // await nftFactory(
+                    //   {
+                    //     functionName: "mint",
+                    //     args: [
+                    //       address,
+                    //       "tokenUri", // TODO
+                    //       erc20Address,
+                    //       [""], // TODO
+                    //     ],
+                    //   },
+                    //   {
+                    //     onBlockConfirmation: txnReceipt => {
+                    //       console.log("📦 Transaction blockHash", txnReceipt.blockHash);
+                    //       setAsset({ ...asset, receipt: txnReceipt });
+                    //     },
+                    //   },
+                    // );
                     // win_effect();  TODO
                   } catch (error) {
                     console.log("nft mint error", error);

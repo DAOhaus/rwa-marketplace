@@ -72,7 +72,7 @@ export default function Page() {
       console.log(actualUri);
       setAsset({ ...asset, nft: { ...asset.nft, image: actualUri } });
     },
-    [upload],
+    [asset, client],
   );
 
   const { getRootProps } = useDropzone({ onDrop, accept: { "image/*": [] } });

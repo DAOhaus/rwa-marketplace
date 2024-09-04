@@ -93,13 +93,6 @@ export const MintForm = ({ state }: { state: State }) => {
     <Stack pl={2} pr={4} gap={4}>
       <Button
         onClick={() => {
-          console.log(state);
-        }}
-      >
-        hehe
-      </Button>
-      <Button
-        onClick={() => {
           console.log(events);
         }}
       >

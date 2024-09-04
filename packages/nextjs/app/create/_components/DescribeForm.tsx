@@ -70,13 +70,6 @@ export const DescribeForm = ({ state }: { state: State }) => {
   // };
   return (
     <>
-      <Button
-        onClick={() => {
-          console.log(state);
-        }}
-      >
-        hehe
-      </Button>
       <Stack p={4} gap={4}>
         <Text tiny>
           Describe your token and list useful information about it. Adding additional attributes below will be stored

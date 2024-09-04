@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Erc20Data, State } from "../page";
 import { Box, Code, Flex, HStack, Stack } from "@chakra-ui/react";
+import { createThirdwebClient } from "thirdweb";
+import { upload } from "thirdweb/storage";
 import { parseEther } from "viem";
 import { useAccount } from "wagmi";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
@@ -11,7 +13,6 @@ import { Address } from "~~/components/scaffold-eth";
 import { useScaffoldEventHistory, useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 // import confetti from "canvas-confetti";
-// import { singleUpload } from '~~/services/fleek';
 
 export const MintForm = ({ state }: { state: State }) => {
   const {
@@ -89,6 +90,14 @@ export const MintForm = ({ state }: { state: State }) => {
   //   });
   // };
 
+  const client = createThirdwebClient({
+    clientId: process.env.NEXT_PUBLIC_THIRD_WEB_CLIENT as string,
+  });
+
+  const jsonToString = (e: any) => {
+    return JSON.stringify(e, (_, value) => (typeof value === "bigint" ? value.toString() : value));
+  };
+
   return (
     <Stack pl={2} pr={4} gap={4}>
       <Button
@@ -148,6 +157,14 @@ export const MintForm = ({ state }: { state: State }) => {
                 if (address !== undefined)
                   try {
                     setError("");
+                    const uri = await upload({
+                      client: client,
+                      files: [new File([jsonToString(asset.nft)], "metadata.json")],
+                    });
+                    const actualUri = `https://${process.env.NEXT_PUBLIC_THIRD_WEB_CLIENT}.ipfscdn.io/ipfs/${
+                      uri.split("//")[1]
+                    }`;
+                    console.log(actualUri);
                     await erc20Factory(
                       {
                         functionName: "createToken",

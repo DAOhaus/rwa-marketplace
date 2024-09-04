@@ -1,9 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import packageJson from "../../../package.json";
-import { Box } from "@chakra-ui/react";
 import type { NextPage } from "next";
-// import SelectForm from "~~/app/create/_components/SelectForm";
 import { PageWrapper } from "~~/components";
 
 const Home: NextPage = () => {
@@ -11,13 +10,19 @@ const Home: NextPage = () => {
     <PageWrapper className="justify-center">
       <div className="text-center">
         <div>
-          <div className="text-6xl mb-4">
+          {/* <div className="text-6xl mb-4">
             <span style={{ color: "red", opacity: ".75" }}>A</span> U T O D A{" "}
             <span style={{ color: "red", opacity: ".75" }}>O</span>
             <br></br>
-          </div>
+            </div> */}
 
-          <Box maxW="md" mb={8} marginX={"auto"} maxWidth={"500px"}></Box>
+          <Image
+            alt="auto dao logo"
+            className="cursor-pointer rounded-md"
+            src="/logo_people.png"
+            width={300}
+            height={300}
+          />
           {/* <SelectForm /> */}
           <div className="text-gray-500 mb-4">
             <div>securely attach your title to NFT</div>

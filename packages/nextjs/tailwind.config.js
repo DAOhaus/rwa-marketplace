@@ -1,4 +1,9 @@
 /** @type {import('tailwindcss').Config} */
+const colors = {
+  darkest: "#18181B",
+  darkGrey: "#FFFFFF0F",
+  neonGreen: "#84CC16",
+};
 module.exports = {
   content: ["./app/**/*.{js,ts,jsx,tsx}", "./components/**/*.{js,ts,jsx,tsx}", "./utils/**/*.{js,ts,jsx,tsx}"],
   plugins: [require("daisyui")],
@@ -41,14 +46,14 @@ module.exports = {
       },
       {
         dark: {
-          primary: "#212638",
+          primary: colors.darkest,
           "primary-content": "#F9FBFF",
-          secondary: "#323f61",
-          "secondary-content": "#F9FBFF",
-          accent: "#4969A6",
+          secondary: colors.darkGrey,
+          "secondary-content": colors.darkGrey,
+          accent: colors.neonGreen,
           "accent-content": "#F9FBFF",
           neutral: "#F9FBFF",
-          "neutral-content": "#385183",
+          "neutral-content": "#FFFFFF0F",
           "base-100": "#385183",
           "base-200": "#2A3655",
           "base-300": "#212638",
@@ -57,6 +62,8 @@ module.exports = {
           success: "#34EEB6",
           warning: "#FFCF72",
           error: "#FF8863",
+
+          "[data-theme='dark'] .bg-secondary": { "background-color": colors.darkGray },
 
           "--rounded-btn": "9999rem",
 
@@ -76,6 +83,13 @@ module.exports = {
   },
   theme: {
     extend: {
+      faded: { opacity: "50%" },
+      colors: {
+        redBrand: "rgb(255, 0, 0)",
+        blueBrand: "rgb(24, 145, 255)",
+        yellowBrand: "rgb(255, 255, 0)",
+        greenBrand: colors.neonGreen,
+      },
       boxShadow: {
         center: "0 0 12px -2px rgb(0 0 0 / 0.05)",
       },

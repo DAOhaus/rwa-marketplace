@@ -48,7 +48,7 @@ contract NFTFactory is ERC721URIStorage, Ownable, Pausable {
 		string memory symbol_,
 		address[] memory membersToFund,
 		uint256[] memory amountsToFund
-	) public whenNotPaused returns (uint256) {
+	) public virtual whenNotPaused returns (uint256) {
 		require(!onlyOwnerCanMint || msg.sender == owner(), "Minting is restricted to the owner");
 
 		// increment id & mint

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-import "./ERC20FactoryKyc.sol";
 import "./ERC20Ownable.sol";
 
 interface IKintoKYC {
@@ -33,26 +32,12 @@ contract ERC20OwnableKyc is ERC20Ownable {
 		address[] memory membersToFund,
 		uint256[] memory amountsToFund,
 		address kycContract_
-	)
-		ERC20Ownable(
-			name_,
-			symbol_,
-			owner_,
-			factory_,
-			linkedNFT_,
-			linkedNFTId_,
-			membersToFund,
-			amountsToFund
-		)
-	{
+	) ERC20Ownable(name_, symbol_, owner_, factory_, linkedNFT_, linkedNFTId_, membersToFund, amountsToFund) {
 		kycContract = kycContract_;
 	}
 
 	// Function to update the whitelist
-	function updateWhitelist(
-		address account,
-		bool isWhitelisted
-	) external onlyOwner {
+	function updateWhitelist(address account, bool isWhitelisted) external onlyOwner {
 		whitelist[account] = isWhitelisted;
 		emit WhitelistUpdated(account, isWhitelisted);
 	}
@@ -74,11 +59,7 @@ contract ERC20OwnableKyc is ERC20Ownable {
 		emit KYCContractSet(kycContract_);
 	}
 
-	function _beforeTokenTransfer(
-		address from,
-		address to,
-		uint256 amount
-	) internal override {
+	function _beforeTokenTransfer(address from, address to, uint256 amount) internal override {
 		super._beforeTokenTransfer(from, to, amount);
 
 		// Check whitelist
@@ -89,8 +70,7 @@ contract ERC20OwnableKyc is ERC20Ownable {
 		// Check KYC
 		if (kycCheckEnabled) {
 			require(
-				IKintoKYC(kycContract).isKYC(to) &&
-					IKintoKYC(kycContract).isSanctionsSafe(to),
+				IKintoKYC(kycContract).isKYC(to) && IKintoKYC(kycContract).isSanctionsSafe(to),
 				"Recipient has not passed KYC"
 			);
 		}

@@ -8,11 +8,11 @@ import "./ERC20FactoryKyc.sol";
 contract NFTFactoryKyc is NFTFactory {
 	using Counters for Counters.Counter;
 	Counters.Counter private _tokenIdCounter;
+	address public kycContract = 0x33F28C3a636B38683a38987100723f2e2d3d038e;
 
 	struct NFTKYCData {
 		bool kycCheckEnabled;
 		bool whitelistEnabled;
-		address kycContract;
 		mapping(address => bool) whitelist;
 	}
 
@@ -21,7 +21,7 @@ contract NFTFactoryKyc is NFTFactory {
 	event KYCCheckEnabled(uint256 tokenId, bool enabled);
 	event SanctionsCheckEnabled(uint256 tokenId, bool enabled);
 	event WhitelistEnabled(uint256 tokenId, bool enabled);
-	event KYCContractUpdated(uint256 tokenId, address kycContract);
+	event KYCContractUpdated(address kycContract);
 	event AddressWhitelisted(uint256 tokenId, address user, bool status);
 
 	constructor(string memory _name, string memory _symbol) NFTFactory(_name, _symbol) {}
@@ -32,16 +32,11 @@ contract NFTFactoryKyc is NFTFactory {
 		string memory tokenURI,
 		address existingLinkedToken,
 		string[] memory existingLinkedTokenInterfaces,
-		bool kycCheckEnabled, // KYC specific
-		bool whitelistEnabled,
-		address kycContract,
-		address[] memory whitelistAddresses,
 		string memory name_, // erc20 mint logic
 		string memory symbol_,
 		address[] memory membersToFund,
-		uint256[] memory amountsToFund,
-		address kycContract_ // kyc specific for the erc20
-	) public returns (uint256) {
+		uint256[] memory amountsToFund
+	) public override returns (uint256) {
 		require(!onlyOwnerCanMint || msg.sender == owner(), "Minting is restricted to the owner");
 
 		// increment id & mint
@@ -53,7 +48,7 @@ contract NFTFactoryKyc is NFTFactory {
 		address linkedTokenAddress;
 		string[] memory linkedTokenInterfaces;
 
-		// Check if a existingLinkedToken is provided, or if required parameters are empty
+		// Check if a existingLikedToken is provided, or if required parameters are empty
 		if (
 			existingLinkedToken == address(0) &&
 			bytes(name_).length > 0 &&
@@ -71,11 +66,10 @@ contract NFTFactoryKyc is NFTFactory {
 				address(this),
 				tokenId,
 				membersToFund,
-				amountsToFund,
-				kycContract_
+				amountsToFund
 			);
 		} else {
-			// If no token is created, use the provided existingLinkedToken or set to zero address
+			// If no token is created, use the provided existingLikedToken or set to zero address
 			linkedTokenAddress = existingLinkedToken;
 			linkedTokenInterfaces = existingLinkedTokenInterfaces;
 		}
@@ -86,14 +80,8 @@ contract NFTFactoryKyc is NFTFactory {
 		nftData[tokenId].linkedTokenInterfaces = linkedTokenInterfaces;
 		nftData[tokenId].locked = false;
 		nftData[tokenId].paused = false;
-		nftKycData[tokenId].kycCheckEnabled = kycCheckEnabled;
-		nftKycData[tokenId].whitelistEnabled = whitelistEnabled;
-		nftKycData[tokenId].kycContract = kycContract;
-
-		// Update the whitelist mapping separately
-		for (uint256 i = 0; i < whitelistAddresses.length; i++) {
-			nftKycData[tokenId].whitelist[whitelistAddresses[i]] = true;
-		}
+		nftKycData[tokenId].kycCheckEnabled = false;
+		nftKycData[tokenId].whitelistEnabled = false;
 
 		tokensByAddress[to].push(tokenId); // Add token to the new owner's list
 
@@ -108,7 +96,6 @@ contract NFTFactoryKyc is NFTFactory {
 		string memory tokenURI,
 		bool kycCheckEnabled,
 		bool whitelistEnabled,
-		address kycContract,
 		address[] memory whitelistAddresses
 	) public {
 		require(_exists(tokenId), "NFT does not exist");
@@ -128,17 +115,17 @@ contract NFTFactoryKyc is NFTFactory {
 			nftKycData[tokenId].whitelistEnabled = whitelistEnabled;
 		}
 
-		// Set kycContract if a valid address is provided
-		if (kycContract != address(0)) {
-			nftKycData[tokenId].kycContract = kycContract;
-		}
-
 		// Set whitelist addresses if provided
 		if (whitelistAddresses.length > 0) {
 			for (uint256 i = 0; i < whitelistAddresses.length; i++) {
 				nftKycData[tokenId].whitelist[whitelistAddresses[i]] = true;
 			}
 		}
+	}
+
+	function setKYCContract(address kycContract_) public onlyOwner {
+		kycContract = kycContract_;
+		emit KYCContractUpdated(kycContract_);
 	}
 
 	function _beforeTokenTransfer(
@@ -152,8 +139,7 @@ contract NFTFactoryKyc is NFTFactory {
 		// Check if KYC is enabled and validate with KYC contract
 		if (nftKycData[tokenId].kycCheckEnabled) {
 			require(
-				IKintoKYC(nftKycData[tokenId].kycContract).isKYC(to) &&
-					IKintoKYC(nftKycData[tokenId].kycContract).isSanctionsSafe(to),
+				IKintoKYC(kycContract).isKYC(to) && IKintoKYC(kycContract).isSanctionsSafe(to),
 				"Recipient has not passed KYC or is not SanctionsSafe"
 			);
 		}

@@ -27,7 +27,7 @@ contract ERC20Factory is Ownable {
 		uint256 associatedNFTId_,
 		address[] memory membersToFund,
 		uint256[] memory amountsToFund
-	) external returns (address) {
+	) external virtual returns (address) {
 		ERC20Ownable token = new ERC20Ownable(
 			name_,
 			symbol_,

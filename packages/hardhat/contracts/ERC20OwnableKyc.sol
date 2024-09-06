@@ -13,7 +13,7 @@ contract ERC20OwnableKyc is ERC20Ownable {
 	mapping(address => bool) private whitelist;
 	bool public whitelistEnabled = false;
 	bool public kycCheckEnabled = false;
-	address public kycContract;
+	address public kycContract = 0x33F28C3a636B38683a38987100723f2e2d3d038e;
 
 	// Events for whitelist and KYC/sanctions checks
 	event WhitelistUpdated(address indexed account, bool isWhitelisted);
@@ -30,11 +30,8 @@ contract ERC20OwnableKyc is ERC20Ownable {
 		address linkedNFT_,
 		uint256 linkedNFTId_,
 		address[] memory membersToFund,
-		uint256[] memory amountsToFund,
-		address kycContract_
-	) ERC20Ownable(name_, symbol_, owner_, factory_, linkedNFT_, linkedNFTId_, membersToFund, amountsToFund) {
-		kycContract = kycContract_;
-	}
+		uint256[] memory amountsToFund
+	) ERC20Ownable(name_, symbol_, owner_, factory_, linkedNFT_, linkedNFTId_, membersToFund, amountsToFund) {}
 
 	// Function to update the whitelist
 	function updateWhitelist(address account, bool isWhitelisted) external onlyOwner {

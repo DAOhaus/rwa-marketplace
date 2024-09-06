@@ -14,9 +14,8 @@ contract ERC20FactoryKyc is ERC20Factory {
 		address associatedNFT_,
 		uint256 associatedNFTId_,
 		address[] memory membersToFund,
-		uint256[] memory amountsToFund,
-		address kycContract_
-	) external returns (address) {
+		uint256[] memory amountsToFund
+	) external override returns (address) {
 		ERC20OwnableKyc token = new ERC20OwnableKyc(
 			name_,
 			symbol_,
@@ -25,8 +24,7 @@ contract ERC20FactoryKyc is ERC20Factory {
 			associatedNFT_,
 			associatedNFTId_,
 			membersToFund,
-			amountsToFund,
-			kycContract_
+			amountsToFund
 		);
 
 		tokensByOwner[tokenOwner_].push(address(token));

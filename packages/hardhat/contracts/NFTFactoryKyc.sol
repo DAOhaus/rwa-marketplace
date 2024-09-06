@@ -28,10 +28,7 @@ contract NFTFactoryKyc is NFTFactory {
 	event KYCContractUpdated(uint256 tokenId, address kycContract);
 	event AddressWhitelisted(uint256 tokenId, address user, bool status);
 
-	constructor(
-		string memory _name,
-		string memory _symbol
-	) NFTFactory(_name, _symbol) {}
+	constructor(string memory _name, string memory _symbol) NFTFactory(_name, _symbol) {}
 
 	// Overriding the mint function to handle additional parameters and whitelist initialization
 	function mint(
@@ -44,10 +41,7 @@ contract NFTFactoryKyc is NFTFactory {
 		address kycContract,
 		address[] memory whitelistAddresses // New parameter for whitelist addresses
 	) public {
-		require(
-			!onlyOwnerCanMint || msg.sender == owner(),
-			"Minting is restricted to the owner"
-		);
+		require(!onlyOwnerCanMint || msg.sender == owner(), "Minting is restricted to the owner");
 
 		uint256 tokenId = _tokenIdCounter.current();
 		_tokenIdCounter.increment();
@@ -85,10 +79,7 @@ contract NFTFactoryKyc is NFTFactory {
 		address[] memory whitelistAddresses
 	) public {
 		require(_exists(tokenId), "NFT does not exist");
-		require(
-			msg.sender == owner() || msg.sender == ownerOf(tokenId),
-			"Caller is not the owner or NFT owner"
-		);
+		require(msg.sender == owner() || msg.sender == ownerOf(tokenId), "Caller is not the owner or NFT owner");
 		require(!nftData[tokenId].locked, "Metadata is locked");
 
 		if (bytes(status).length > 0) nftData[tokenId].status = status;
@@ -129,19 +120,14 @@ contract NFTFactoryKyc is NFTFactory {
 		if (nftKycData[tokenId].kycCheckEnabled) {
 			require(
 				IKintoKYC(nftKycData[tokenId].kycContract).isKYC(to) &&
-					IKintoKYC(nftKycData[tokenId].kycContract).isSanctionsSafe(
-						to
-					),
+					IKintoKYC(nftKycData[tokenId].kycContract).isSanctionsSafe(to),
 				"Recipient has not passed KYC or is not SanctionsSafe"
 			);
 		}
 
 		// Check if whitelist is enabled and the recipient is in the whitelist
 		if (nftKycData[tokenId].whitelistEnabled) {
-			require(
-				nftKycData[tokenId].whitelist[to],
-				"Recipient is not in the whitelist"
-			);
+			require(nftKycData[tokenId].whitelist[to], "Recipient is not in the whitelist");
 		}
 
 		if (from != address(0)) {

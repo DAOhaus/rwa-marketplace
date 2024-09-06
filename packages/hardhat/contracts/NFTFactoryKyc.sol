@@ -3,11 +3,7 @@ pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "./NFTFactory.sol";
-
-interface IKintoKYC {
-	function isKYC(address user) external view returns (bool);
-	function isSanctionsSafe(address user) external view returns (bool);
-}
+import "./ERC20FactoryKyc.sol";
 
 contract NFTFactoryKyc is NFTFactory {
 	using Counters for Counters.Counter;

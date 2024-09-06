@@ -16,7 +16,7 @@ contract ERC20FactoryKyc is ERC20Factory {
 		address[] memory membersToFund,
 		uint256[] memory amountsToFund,
 		address kycContract_
-	) external {
+	) external returns (address) {
 		ERC20OwnableKyc token = new ERC20OwnableKyc(
 			name_,
 			symbol_,
@@ -33,5 +33,6 @@ contract ERC20FactoryKyc is ERC20Factory {
 		allTokens.push(address(token));
 
 		emit TokenCreated(tokenOwner_, address(token));
+		return address(token);
 	}
 }

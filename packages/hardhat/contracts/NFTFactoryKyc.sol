@@ -3,6 +3,7 @@ pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "./NFTFactory.sol";
+import "./ERC20FactoryKyc.sol";
 
 interface IKintoKYC {
 	function isKYC(address user) external view returns (bool);
@@ -28,10 +29,7 @@ contract NFTFactoryKyc is NFTFactory {
 	event KYCContractUpdated(uint256 tokenId, address kycContract);
 	event AddressWhitelisted(uint256 tokenId, address user, bool status);
 
-	constructor(
-		string memory _name,
-		string memory _symbol
-	) NFTFactory(_name, _symbol) {}
+	constructor(string memory _name, string memory _symbol) NFTFactory(_name, _symbol) {}
 
 	// Overriding the mint function to handle additional parameters and whitelist initialization
 	function mint(
@@ -39,20 +37,53 @@ contract NFTFactoryKyc is NFTFactory {
 		string memory tokenURI,
 		address linkedToken,
 		string[] memory linkedTokenInterfaces,
-		bool kycCheckEnabled,
+		bool kycCheckEnabled, // KYC specific
 		bool whitelistEnabled,
 		address kycContract,
-		address[] memory whitelistAddresses // New parameter for whitelist addresses
-	) public {
-		require(
-			!onlyOwnerCanMint || msg.sender == owner(),
-			"Minting is restricted to the owner"
-		);
+		address[] memory whitelistAddresses,
+		string memory name_, // erc20 mint logic
+		string memory symbol_,
+		address[] memory membersToFund,
+		uint256[] memory amountsToFund,
+		address kycContract_ // kyc specific for the erc20
+	) public override returns(uint256) {
+		require(!onlyOwnerCanMint || msg.sender == owner(), "Minting is restricted to the owner");
 
+		// increment id & mint
 		uint256 tokenId = _tokenIdCounter.current();
 		_tokenIdCounter.increment();
 		_safeMint(to, tokenId);
 		_setTokenURI(tokenId, tokenURI);
+
+		address linkedTokenAddress;
+		string[] memory linkedTokenInterfaces;
+
+		// Check if a existingTokenToLink is provided, or if required parameters are empty
+		if (
+			existingTokenToLink == address(0) &&
+			bytes(name_).length > 0 &&
+			bytes(symbol_).length > 0 &&
+			membersToFund.length > 0 &&
+			amountsToFund.length > 0
+		) {
+			// TODO: find out why this is throwing error
+			// Create the associated ERC20 token by calling TokenFactory
+			// linkedTokenInterfaces[0] = "ERC20";
+			linkedTokenAddress = ERC20FactoryKyc(linkedTokenFactoryAddress).createToken(
+				name_,
+				symbol_,
+				to,
+				address(this),
+				tokenId,
+				membersToFund,
+				amountsToFund,
+				kycContract_
+			);
+		} else {
+			// If no token is created, use the provided existingTokenToLink or set to zero address
+			linkedTokenAddress = existingTokenToLink;
+			linkedTokenInterfaces = existingLinkedTokenInterfaces;
+		}
 
 		// Initialize the struct without the mapping because of nested mapping error
 		nftData[tokenId].status = "active";
@@ -72,6 +103,7 @@ contract NFTFactoryKyc is NFTFactory {
 		tokensByAddress[to].push(tokenId); // Add token to the new owner's list
 
 		emit TokenMinted(tokenId, to);
+		return tokenId
 	}
 
 	// Callable by both owner and individual NFT holder
@@ -85,10 +117,7 @@ contract NFTFactoryKyc is NFTFactory {
 		address[] memory whitelistAddresses
 	) public {
 		require(_exists(tokenId), "NFT does not exist");
-		require(
-			msg.sender == owner() || msg.sender == ownerOf(tokenId),
-			"Caller is not the owner or NFT owner"
-		);
+		require(msg.sender == owner() || msg.sender == ownerOf(tokenId), "Caller is not the owner or NFT owner");
 		require(!nftData[tokenId].locked, "Metadata is locked");
 
 		if (bytes(status).length > 0) nftData[tokenId].status = status;
@@ -129,19 +158,14 @@ contract NFTFactoryKyc is NFTFactory {
 		if (nftKycData[tokenId].kycCheckEnabled) {
 			require(
 				IKintoKYC(nftKycData[tokenId].kycContract).isKYC(to) &&
-					IKintoKYC(nftKycData[tokenId].kycContract).isSanctionsSafe(
-						to
-					),
+					IKintoKYC(nftKycData[tokenId].kycContract).isSanctionsSafe(to),
 				"Recipient has not passed KYC or is not SanctionsSafe"
 			);
 		}
 
 		// Check if whitelist is enabled and the recipient is in the whitelist
 		if (nftKycData[tokenId].whitelistEnabled) {
-			require(
-				nftKycData[tokenId].whitelist[to],
-				"Recipient is not in the whitelist"
-			);
+			require(nftKycData[tokenId].whitelist[to], "Recipient is not in the whitelist");
 		}
 
 		if (from != address(0)) {

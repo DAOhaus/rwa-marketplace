@@ -5,11 +5,7 @@ import "./ERC20OwnableKyc.sol";
 import "./ERC20Factory.sol";
 
 contract ERC20FactoryKyc is ERC20Factory {
-	event WhitelistUpdated(
-		address indexed token,
-		address indexed account,
-		bool isWhitelisted
-	);
+	event WhitelistUpdated(address indexed token, address indexed account, bool isWhitelisted);
 	event WhitelistStatusChanged(address indexed token, bool isEnabled);
 	event KYCCheckStatusChanged(address indexed token, bool isEnabled);
 	event KYCContractSet(address indexed token, address kycContract);
@@ -25,7 +21,7 @@ contract ERC20FactoryKyc is ERC20Factory {
 		address[] memory membersToFund,
 		uint256[] memory amountsToFund,
 		address kycContract_
-	) external {
+	) external returns (address) {
 		ERC20OwnableKyc token = new ERC20OwnableKyc(
 			name_,
 			symbol_,
@@ -42,51 +38,33 @@ contract ERC20FactoryKyc is ERC20Factory {
 		allTokens.push(address(token));
 
 		emit TokenCreated(tokenOwner_, address(token));
+		return address(token);
 	}
 
 	// Set Whitelist for an address on the ERC20Ownable contract
-	function updateWhitelist(
-		address token,
-		address account,
-		bool isWhitelisted
-	) external onlyOwner {
-		require(
-			ERC20OwnableKyc(token).factory() == address(this),
-			"Invalid token"
-		);
+	function updateWhitelist(address token, address account, bool isWhitelisted) external onlyOwner {
+		require(ERC20OwnableKyc(token).factory() == address(this), "Invalid token");
 		ERC20OwnableKyc(token).updateWhitelist(account, isWhitelisted);
 		emit WhitelistUpdated(token, account, isWhitelisted);
 	}
 
 	// Toggle the whitelist functionality on/off
 	function toggleWhitelist(address token, bool enabled) external onlyOwner {
-		require(
-			ERC20OwnableKyc(token).factory() == address(this),
-			"Invalid token"
-		);
+		require(ERC20OwnableKyc(token).factory() == address(this), "Invalid token");
 		ERC20OwnableKyc(token).toggleWhitelist(enabled);
 		emit WhitelistStatusChanged(token, enabled);
 	}
 
 	// Toggle the KYC check functionality on/off
 	function toggleKYCCheck(address token, bool enabled) external onlyOwner {
-		require(
-			ERC20OwnableKyc(token).factory() == address(this),
-			"Invalid token"
-		);
+		require(ERC20OwnableKyc(token).factory() == address(this), "Invalid token");
 		ERC20OwnableKyc(token).toggleKYCCheck(enabled);
 		emit KYCCheckStatusChanged(token, enabled);
 	}
 
 	// Set the KYC contract address on the ERC20Ownable contract
-	function setKYCContract(
-		address token,
-		address kycContract
-	) external onlyOwner {
-		require(
-			ERC20OwnableKyc(token).factory() == address(this),
-			"Invalid token"
-		);
+	function setKYCContract(address token, address kycContract) external onlyOwner {
+		require(ERC20OwnableKyc(token).factory() == address(this), "Invalid token");
 		ERC20OwnableKyc(token).setKYCContract(kycContract);
 		emit KYCContractSet(token, kycContract);
 	}

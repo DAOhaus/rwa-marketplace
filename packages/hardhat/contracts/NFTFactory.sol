@@ -68,6 +68,7 @@ contract NFTFactory is ERC721URIStorage, Ownable, Pausable {
 			membersToFund.length > 0 &&
 			amountsToFund.length > 0
 		) {
+			// TODO: find out why this is throwing error
 			// Create the associated ERC20 token by calling TokenFactory
 			// linkedTokenInterfaces[0] = "ERC20";
 			linkedTokenAddress = ERC20Factory(linkedTokenFactoryAddress).createToken(

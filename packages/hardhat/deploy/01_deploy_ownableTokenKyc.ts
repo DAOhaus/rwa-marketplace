@@ -22,12 +22,12 @@ const deployTokenContract: DeployFunction = async function (hre: HardhatRuntimeE
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
-  await deploy("ERC20Ownable", {
+  await deploy("ERC20OwnableKyc", {
     from: deployer,
     // Contract constructor arguments
     log: true,
     args: [
-      "Deposit Token",
+      "Deposit KYC Token",
       "DPT",
       deployer,
       "0x0000000000000000000000000000000000000000",
@@ -35,13 +35,14 @@ const deployTokenContract: DeployFunction = async function (hre: HardhatRuntimeE
       0,
       [deployer],
       ["100000000000000000000"],
+      "0x0000000000000000000000000000000000000000",
     ],
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
     // automatically mining the contract deployment transaction. There is no effect on live networks.
     autoMine: true,
   });
-  const contract = await hre.ethers.getContract<Contract>("ERC20Ownable", deployer);
-  console.log("👋 Minted ERC20 Ownable", await contract.name());
+  const contract = await hre.ethers.getContract<Contract>("ERC20OwnableKyc", deployer);
+  console.log("👋 Minted KYC ERC20 Ownable", await contract.name());
 };
 
 export default deployTokenContract;

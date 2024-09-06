@@ -1,10 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 const colors = {
   darkest: "#18181B",
-  darkGrey: "#FFFFFFF",
+  darkGrey: "#292929",
   grey: "#444449",
   lightGrey: "#ddd",
   lightestGrey: "#f7f7f7",
+  white: "#ffffff",
   neonGreen: "#84CC16",
 };
 module.exports = {
@@ -21,11 +22,11 @@ module.exports = {
           secondary: "#DAE8FF",
           neutral: colors.lightestGrey,
           accent: "#93BBFB",
+          "base-100": colors.white,
           //   "primary-content": "#212638",
           // "secondary-content": "#212638",
           //   "accent-content": "#212638",
           //   "neutral-content": "#ffffff",
-          //   "base-100": "#ffffff",
           //   "base-200": "#f4f8ff",
           //   "base-300": "#DAE8FF",
           // "base-content": "#212638",
@@ -51,11 +52,11 @@ module.exports = {
           secondary: colors.darkGrey,
           neutral: colors.grey,
           accent: colors.neonGreen,
+          "base-100": colors.darkest,
           //     "primary-content": "#F9FBFF",
           //     "secondary-content": colors.darkGrey,
           //     "accent-content": "#F9FBFF",
           //     "neutral-content": "#FFFFFF0F",
-          //     "base-100": "#385183",
           //     "base-200": "#2A3655",
           //     "base-300": "#212638",
           //     "base-content": "#F9FBFF",

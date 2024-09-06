@@ -5,11 +5,6 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "./NFTFactory.sol";
 import "./ERC20FactoryKyc.sol";
 
-interface IKintoKYC {
-	function isKYC(address user) external view returns (bool);
-	function isSanctionsSafe(address user) external view returns (bool);
-}
-
 contract NFTFactoryKyc is NFTFactory {
 	using Counters for Counters.Counter;
 	Counters.Counter private _tokenIdCounter;
@@ -35,8 +30,8 @@ contract NFTFactoryKyc is NFTFactory {
 	function mint(
 		address to,
 		string memory tokenURI,
-		address linkedToken,
-		string[] memory linkedTokenInterfaces,
+		address existingLinkedToken,
+		string[] memory existingLinkedTokenInterfaces,
 		bool kycCheckEnabled, // KYC specific
 		bool whitelistEnabled,
 		address kycContract,
@@ -46,7 +41,7 @@ contract NFTFactoryKyc is NFTFactory {
 		address[] memory membersToFund,
 		uint256[] memory amountsToFund,
 		address kycContract_ // kyc specific for the erc20
-	) public override returns(uint256) {
+	) public returns (uint256) {
 		require(!onlyOwnerCanMint || msg.sender == owner(), "Minting is restricted to the owner");
 
 		// increment id & mint
@@ -58,9 +53,9 @@ contract NFTFactoryKyc is NFTFactory {
 		address linkedTokenAddress;
 		string[] memory linkedTokenInterfaces;
 
-		// Check if a existingTokenToLink is provided, or if required parameters are empty
+		// Check if a existingLinkedToken is provided, or if required parameters are empty
 		if (
-			existingTokenToLink == address(0) &&
+			existingLinkedToken == address(0) &&
 			bytes(name_).length > 0 &&
 			bytes(symbol_).length > 0 &&
 			membersToFund.length > 0 &&
@@ -80,14 +75,14 @@ contract NFTFactoryKyc is NFTFactory {
 				kycContract_
 			);
 		} else {
-			// If no token is created, use the provided existingTokenToLink or set to zero address
-			linkedTokenAddress = existingTokenToLink;
+			// If no token is created, use the provided existingLinkedToken or set to zero address
+			linkedTokenAddress = existingLinkedToken;
 			linkedTokenInterfaces = existingLinkedTokenInterfaces;
 		}
 
 		// Initialize the struct without the mapping because of nested mapping error
 		nftData[tokenId].status = "active";
-		nftData[tokenId].linkedToken = linkedToken;
+		nftData[tokenId].linkedToken = linkedTokenAddress;
 		nftData[tokenId].linkedTokenInterfaces = linkedTokenInterfaces;
 		nftData[tokenId].locked = false;
 		nftData[tokenId].paused = false;
@@ -103,7 +98,7 @@ contract NFTFactoryKyc is NFTFactory {
 		tokensByAddress[to].push(tokenId); // Add token to the new owner's list
 
 		emit TokenMinted(tokenId, to);
-		return tokenId
+		return tokenId;
 	}
 
 	// Callable by both owner and individual NFT holder

@@ -30,7 +30,8 @@ const deployTokenContract: DeployFunction = async function (hre: HardhatRuntimeE
   });
   const contract = await hre.ethers.getContract<Contract>("ERC20FactoryKyc", deployer);
   const factoryAddress = await contract.getAddress();
-  console.log("👋 Minted ERC20 Factory", factoryAddress);
+  const factoryName = await contract.name();
+  console.log("👋", factoryName, factoryAddress);
 };
 
 export default deployTokenContract;

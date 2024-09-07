@@ -149,7 +149,7 @@ export const DescribeForm = ({ state }: { state: State }) => {
               // placeholder="Select option"
               className="placeholder:"
             >
-              <option value="car">Vehicle</option>
+              <option value="vehicle">Vehicle</option>
               <option value="realEstate">Real Estate</option>
               <option value="art">Art</option>
             </Select>

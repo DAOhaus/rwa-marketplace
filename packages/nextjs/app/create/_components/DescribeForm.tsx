@@ -155,74 +155,78 @@ export const DescribeForm = ({ state }: { state: State }) => {
             </Select>
           }
         />
-        <Box>
-          <Input
-            name={chainData.linkedPdfKey}
-            label="DIMO User Address"
-            placeholder={"0xf5c0337B31464D4f2232FEb2E71b4c7A175e7c52"}
-            onChange={(e: { target: { value: any; name: any } }) => {
-              setDimoAddress(e.target.value);
-            }}
-          />
-          <Button
-            colorScheme={"teal"}
-            isDisabled={!canProceedDimo()}
-            onClick={async () => {
-              try {
-                const response = await fetch(endpoint, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ query: query1 }),
-                });
-                if (response.ok) {
-                  const result = await response.json();
-                  const tokenId = result.data["vehicles"]["nodes"][0]["tokenId"];
-                  // console.log('tokenId: ', tokenId);
+        {asset.category === "vehicle" ? (
+          <Box>
+            <Input
+              name={chainData.linkedPdfKey}
+              label="DIMO User Address"
+              placeholder={"0xf5c0337B31464D4f2232FEb2E71b4c7A175e7c52"}
+              onChange={(e: { target: { value: any; name: any } }) => {
+                setDimoAddress(e.target.value);
+              }}
+            />
+            <Button
+              colorScheme={"teal"}
+              isDisabled={!canProceedDimo()}
+              onClick={async () => {
+                try {
+                  const response = await fetch(endpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ query: query1 }),
+                  });
+                  if (response.ok) {
+                    const result = await response.json();
+                    const tokenId = result.data["vehicles"]["nodes"][0]["tokenId"];
+                    // console.log('tokenId: ', tokenId);
 
-                  try {
-                    const response2 = await fetch(endpoint, {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ query: query2(tokenId) }),
-                    });
-                    if (response2.ok) {
-                      const result2 = await response2.json();
-                      const dimoAttributes = result2.data["vehicle"]["definition"];
-                      //console.log('dimo attributes: ', dimoAttributes);
-                      setAsset({
-                        ...asset,
-                        nft: {
-                          ...asset.nft,
-                          attributes: updateAttributes(
-                            updateAttributes(
-                              updateAttributes(asset.nft.attributes, "model", dimoAttributes["model"]),
-                              "make",
-                              dimoAttributes["make"],
-                            ),
-                            "year",
-                            dimoAttributes["year"],
-                          ),
-                        },
+                    try {
+                      const response2 = await fetch(endpoint, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ query: query2(tokenId) }),
                       });
-                    } else {
-                      console.error("Error:", response2.statusText);
+                      if (response2.ok) {
+                        const result2 = await response2.json();
+                        const dimoAttributes = result2.data["vehicle"]["definition"];
+                        //console.log('dimo attributes: ', dimoAttributes);
+                        setAsset({
+                          ...asset,
+                          nft: {
+                            ...asset.nft,
+                            attributes: updateAttributes(
+                              updateAttributes(
+                                updateAttributes(asset.nft.attributes, "model", dimoAttributes["model"]),
+                                "make",
+                                dimoAttributes["make"],
+                              ),
+                              "year",
+                              dimoAttributes["year"],
+                            ),
+                          },
+                        });
+                      } else {
+                        console.error("Error:", response2.statusText);
+                      }
+                    } catch (error) {
+                      console.error("Fetch error:", error);
                     }
-                  } catch (error) {
-                    console.error("Fetch error:", error);
+                  } else {
+                    console.error("Error:", response.statusText);
                   }
-                } else {
-                  console.error("Error:", response.statusText);
+                } catch (error) {
+                  console.error("Fetch error:", error);
                 }
-              } catch (error) {
-                console.error("Fetch error:", error);
-              }
-            }}
-          >
-            <Flex width={"full"} justifyContent={"space-between"} alignItems={"center"}>
-              Autocomplete
-            </Flex>
-          </Button>
-        </Box>
+              }}
+            >
+              <Flex width={"full"} justifyContent={"space-between"} alignItems={"center"}>
+                Autocomplete
+              </Flex>
+            </Button>
+          </Box>
+        ) : (
+          <></>
+        )}
         <Box>
           <Input
             value={getAttribute(chainData.linkedPdfKey, asset.nft.attributes)?.value || ""}

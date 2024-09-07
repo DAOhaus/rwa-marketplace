@@ -1,6 +1,7 @@
 // TODO: bring over the IPFS upload service but don't call it "fleek"
 // TODO: bring over the IPFS upload service but don't call it "fleek"
 // import { useState } from "react";
+import { useState } from "react";
 import { State } from "../page";
 // import { createAttribute, getAttribute } from "~~/utils/helpers";
 import AssetTypes from "./Asset";
@@ -22,6 +23,7 @@ import { cleanAttributes, getAttribute, updateAttributes } from "~~/utils/helper
 export const DescribeForm = ({ state }: { state: State }) => {
   const { stage, setStage, asset, setAsset } = state;
   const error = ""; //const [error, setError] = useState("");
+  const [dimoAddress, setDimoAddress] = useState("");
   // const [pdfUploading, setPdfUploading] = useState<boolean>(false);
   // const pdfAttribute = getAttribute(chainData.linkedPdfKey, asset.nft.attributes);
 
@@ -29,6 +31,10 @@ export const DescribeForm = ({ state }: { state: State }) => {
     let can = asset.nft.name && asset.nft.description;
     asset.nft.attributes.map((attr: any) => (can = can && (attr.required ? attr.value : true)));
     return can;
+  };
+
+  const canProceedDimo = () => {
+    return dimoAddress.length === 42;
   };
 
   const handleAttributeChange = (e: { target: { value: any; name: any } }) => {
@@ -43,6 +49,7 @@ export const DescribeForm = ({ state }: { state: State }) => {
     };
     setAsset(newAsset);
   };
+
   // const handlePdfDrop = async (event: any) => {
   //   console.log("event", event);
   //   if (pdfUploading) return;
@@ -63,6 +70,35 @@ export const DescribeForm = ({ state }: { state: State }) => {
   //   setError("");
   //   setPdfUploading(false);
   // };
+
+  // Define the GraphQL query
+  const query1 = `{
+  vehicles(filterBy: {owner: "${dimoAddress}"}, first: 1) {
+    nodes {
+      tokenId
+      privileges(first: 10) {
+        nodes {
+          setAt
+          expiresAt
+          id
+        }
+      }
+    }
+  }
+}`;
+
+  const query2 = (tokenId: any) => `{
+  vehicle (tokenId: ${tokenId}) {
+    definition {
+      make
+      model
+      year
+    }
+  }
+}`;
+
+  const endpoint = "https://identity-api.dimo.zone/query";
+
   return (
     <>
       <Stack p={4} gap={4}>
@@ -119,6 +155,74 @@ export const DescribeForm = ({ state }: { state: State }) => {
             </Select>
           }
         />
+        <Box>
+          <Input
+            name={chainData.linkedPdfKey}
+            label="DIMO User Address"
+            placeholder={"0xf5c0337B31464D4f2232FEb2E71b4c7A175e7c52"}
+            onChange={(e: { target: { value: any; name: any } }) => {
+              setDimoAddress(e.target.value);
+            }}
+          />
+          <Button
+            colorScheme={"teal"}
+            isDisabled={!canProceedDimo()}
+            onClick={async () => {
+              try {
+                const response = await fetch(endpoint, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ query: query1 }),
+                });
+                if (response.ok) {
+                  const result = await response.json();
+                  const tokenId = result.data["vehicles"]["nodes"][0]["tokenId"];
+                  // console.log('tokenId: ', tokenId);
+
+                  try {
+                    const response2 = await fetch(endpoint, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ query: query2(tokenId) }),
+                    });
+                    if (response2.ok) {
+                      const result2 = await response2.json();
+                      const dimoAttributes = result2.data["vehicle"]["definition"];
+                      //console.log('dimo attributes: ', dimoAttributes);
+                      setAsset({
+                        ...asset,
+                        nft: {
+                          ...asset.nft,
+                          attributes: updateAttributes(
+                            updateAttributes(
+                              updateAttributes(asset.nft.attributes, "model", dimoAttributes["model"]),
+                              "make",
+                              dimoAttributes["make"],
+                            ),
+                            "year",
+                            dimoAttributes["year"],
+                          ),
+                        },
+                      });
+                    } else {
+                      console.error("Error:", response2.statusText);
+                    }
+                  } catch (error) {
+                    console.error("Fetch error:", error);
+                  }
+                } else {
+                  console.error("Error:", response.statusText);
+                }
+              } catch (error) {
+                console.error("Fetch error:", error);
+              }
+            }}
+          >
+            <Flex width={"full"} justifyContent={"space-between"} alignItems={"center"}>
+              Autocomplete
+            </Flex>
+          </Button>
+        </Box>
         <Box>
           <Input
             value={getAttribute(chainData.linkedPdfKey, asset.nft.attributes)?.value || ""}

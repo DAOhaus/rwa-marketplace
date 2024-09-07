@@ -5,15 +5,14 @@
 // TODO: fix prettier putting in spaces that eslint is throwing errors on
 import { createRef, useCallback, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Asset, art } from "./_components/Asset";
+import { Asset, vehicle } from "./_components/Asset";
 import { DescribeForm } from "./_components/DescribeForm";
 import { MintForm } from "./_components/MintForm";
 import { TokenizeForm } from "./_components/TokenizeForm";
 import { Box, Grid, Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react";
 import { useDropzone } from "react-dropzone";
-import { createThirdwebClient } from "thirdweb";
-import { upload } from "thirdweb/storage";
 import { PhotoIcon } from "@heroicons/react/24/outline";
+import { singleUpload } from "~~/services/ipfs";
 
 enum Stage {
   describe,
@@ -41,13 +40,13 @@ export default function Page() {
   const searchParams = useSearchParams();
   //@ts-expect-error
   const defaultStage = Stage[searchParams.get("step") || "describe"];
-  const [asset, setAsset] = useState<any>(art);
+  const [asset, setAsset] = useState<any>(vehicle);
   const [stage, setStage] = useState<number>(defaultStage);
   // change the initial erc20Data
   const [erc20Data, setErc20Data] = useState<Erc20Data>({
-    name: "myT",
-    symbol: "myS",
-    supply: 100,
+    name: "",
+    symbol: "",
+    supply: 0,
     address: "",
     receipt: {},
   });
@@ -61,18 +60,14 @@ export default function Page() {
     setErc20Data: setErc20Data,
   };
 
-  const client = createThirdwebClient({
-    clientId: process.env.NEXT_PUBLIC_THIRD_WEB_CLIENT as string,
-  });
-
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
-      const uri = await upload({ client: client, files: [acceptedFiles[0]] });
-      const actualUri = `https://${process.env.NEXT_PUBLIC_THIRD_WEB_CLIENT}.ipfscdn.io/ipfs/${uri.split("//")[1]}`;
-      console.log(actualUri);
-      setAsset({ ...asset, nft: { ...asset.nft, image: actualUri } });
+      const file = acceptedFiles[0];
+      const returnedImageUrl = await singleUpload(file, file.name);
+      console.log("url after upload", returnedImageUrl);
+      setAsset({ ...asset, nft: { ...asset.nft, image: returnedImageUrl } });
     },
-    [asset, client],
+    [asset],
   );
 
   const { getRootProps } = useDropzone({ onDrop, accept: { "image/*": [] } });

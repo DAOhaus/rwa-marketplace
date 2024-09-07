@@ -50,6 +50,28 @@ export function createAttribute(key: string, value: any) {
   return { trait_type: key, value: value };
 }
 
+export const cleanAttributes = (attributes: Array<{ trait_type: string }>, duplicateString: string) =>
+  (attributes || []).filter((att: { trait_type: string }) => att.trait_type != duplicateString);
+
+// Function to update or add an attribute in the attributes array
+export function updateAttributes(attributes: Array<{ trait_type: string; value: any }>, key: string, value: any) {
+  // Check if the key already exists in the attributes
+  const index = attributes.findIndex(att => att.trait_type === key);
+
+  if (index !== -1) {
+    // If key is found, update the existing value
+    attributes[index].value = value;
+  } else {
+    // If key is not found, create a new attribute and add it
+    const newAttribute = createAttribute(key, value);
+    if (newAttribute) {
+      attributes.push(newAttribute);
+    }
+  }
+
+  return attributes;
+}
+
 export function groupByKeyValue(obj: any, customAttributes?: any) {
   const result: any = [];
   for (const key in obj) {
@@ -85,12 +107,13 @@ export function getAttribute(string: string, attributes: Array<{ trait_type: str
   });
 }
 
-// export function mapNftData(nftData: nftInterface) {
-//   return {
-//     description: nftData.description,
-//     external_url: nftData.external_url,
-//     image: nftData.imageUrl,
-//     name: nftData.name,
-//     attributes: nftData.attributes,
-//   };
-// }
+export const jsonToStringSafe = (e: any) => {
+  let returnString;
+  try {
+    returnString = JSON.stringify(e, (_, value) => (typeof value === "bigint" ? value.toString() : value));
+  } catch (error) {
+    console.log("error converting json to string");
+    console.error(error);
+  }
+  return returnString;
+};

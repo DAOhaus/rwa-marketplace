@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -42,10 +42,7 @@ contract ERC20Ownable is ERC20, Ownable, Pausable {
 		uint256[] memory amountsToFund
 	) ERC20(name_, symbol_) Ownable() {
 		transferOwnership(owner_);
-		require(
-			membersToFund.length == amountsToFund.length,
-			"Mismatched input lengths"
-		);
+		require(membersToFund.length == amountsToFund.length, "Mismatched input lengths");
 		status = "active";
 		factory = factory_;
 		linkedNFT = linkedNFT_;
@@ -67,57 +64,39 @@ contract ERC20Ownable is ERC20, Ownable, Pausable {
 		return _customSymbol;
 	}
 
-	function mint(
-		address to,
-		uint256 amount
-	) external onlyOwner notLocked whenNotPaused {
+	function mint(address to, uint256 amount) external onlyOwner notLocked whenNotPaused {
 		_mint(to, amount);
 		emit TokensMinted(to, amount);
 	}
 
-	function burn(
-		address from,
-		uint256 amount
-	) external onlyOwner notLocked whenNotPaused {
+	function burn(address from, uint256 amount) external onlyOwner notLocked whenNotPaused {
 		_burn(from, amount);
 		emit TokensBurned(from, amount);
 	}
 
-	function updateNFTData(
-		address linkedNFT_,
-		uint256 linkedNFTId_
-	) external onlyOwner notLocked whenNotPaused {
+	function updateNFTData(address linkedNFT_, uint256 linkedNFTId_) external onlyOwner notLocked whenNotPaused {
 		linkedNFT = linkedNFT_;
 		linkedNFTId = linkedNFTId_;
 		emit NFTDataUpdated(linkedNFT_, linkedNFTId_);
 	}
 
-	function changeStatus(
-		string memory newStatus
-	) external onlyOwner notLocked whenNotPaused {
+	function changeStatus(string memory newStatus) external onlyOwner notLocked whenNotPaused {
 		status = newStatus;
 		emit StatusChanged(newStatus);
 	}
 
-	function changeName(
-		string memory newName
-	) external onlyOwner notLocked whenNotPaused {
+	function changeName(string memory newName) external onlyOwner notLocked whenNotPaused {
 		_customName = newName;
 		emit NameChanged(newName);
 	}
 
-	function changeSymbol(
-		string memory newSymbol
-	) external onlyOwner notLocked whenNotPaused {
+	function changeSymbol(string memory newSymbol) external onlyOwner notLocked whenNotPaused {
 		_customSymbol = newSymbol;
 		emit SymbolChanged(newSymbol);
 	}
 
 	function lock() external {
-		require(
-			msg.sender == factory || msg.sender == owner(),
-			"Only factory or owner can lock"
-		);
+		require(msg.sender == factory || msg.sender == owner(), "Only factory or owner can lock");
 		locked = true;
 		emit Locked();
 	}

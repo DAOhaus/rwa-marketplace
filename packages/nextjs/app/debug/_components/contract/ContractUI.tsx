@@ -78,7 +78,7 @@ export const ContractUI = ({ contractName, className = "" }: ContractUIProps) =>
               placeholder="Custom Address"
             />
           </div>
-          <div className="bg-base-300 rounded-3xl px-6 lg:px-8 py-4 shadow-lg shadow-base-300">
+          <div className="bg-neutral rounded-3xl px-6 lg:px-8 py-4 shadow-lg shadow-base-300">
             <ContractVariables
               refreshDisplayVariables={refreshDisplayVariables}
               deployedContractData={deployedContractData}

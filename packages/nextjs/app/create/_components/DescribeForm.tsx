@@ -3,13 +3,13 @@
 // import { useState } from "react";
 import { State } from "../page";
 // import { createAttribute, getAttribute } from "~~/utils/helpers";
-import { art, car, realEstate } from "./Asset";
+import AssetTypes from "./Asset";
 // import UploadInput from "./UploadInput";
-import { Box, Flex, HStack, Select, Stack } from "@chakra-ui/react";
+import { Box, Flex, Select, Stack } from "@chakra-ui/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
-import { Alert, Button, Input, InputLabel, Text } from "~~/components";
+import { Alert, Button, Input, Text } from "~~/components";
 import chainData from "~~/utils/chainData";
-import { getAttribute } from "~~/utils/helpers";
+import { cleanAttributes, getAttribute, updateAttributes } from "~~/utils/helpers";
 
 // import Input, { Label } from "~~/components/Input";
 // import { singleUpload } from "~~/services/fleek";
@@ -27,26 +27,21 @@ export const DescribeForm = ({ state }: { state: State }) => {
 
   const canProceed = () => {
     let can = asset.nft.name && asset.nft.description;
-    asset.nft.attributes.map(
-      (attr: any, indx: any) => (can = can && (asset.attributeDetails[indx].required ? attr.value : true)),
-    );
+    asset.nft.attributes.map((attr: any) => (can = can && (attr.required ? attr.value : true)));
     return can;
   };
 
-  const getAssetFromCategory = (category: string) =>
-    category === "art" ? art : category === "realEstate" ? realEstate : car;
   const handleAttributeChange = (e: { target: { value: any; name: any } }) => {
     const value = e.target.value;
     const key = e.target.name;
-    setAsset({
+    const newAsset = {
       ...asset,
       nft: {
         ...asset.nft,
-        attributes: asset.nft.attributes.map((attr: any) =>
-          attr.trait_type === key ? { trait_type: attr.trait_type, value: String(value) } : attr,
-        ),
+        attributes: updateAttributes(asset.nft.attributes, key, value),
       },
-    });
+    };
+    setAsset(newAsset);
   };
   // const handlePdfDrop = async (event: any) => {
   //   console.log("event", event);
@@ -109,8 +104,7 @@ export const DescribeForm = ({ state }: { state: State }) => {
                 if (newCategory !== null) {
                   setAsset({
                     ...asset,
-                    nft: { ...asset.nft, attributes: getAssetFromCategory(newCategory).nft.attributes },
-                    attributeDetails: getAssetFromCategory(newCategory).attributeDetails,
+                    nft: { ...asset.nft, attributes: AssetTypes[newCategory].nft.attributes },
                     category: newCategory,
                   });
                 }
@@ -119,52 +113,18 @@ export const DescribeForm = ({ state }: { state: State }) => {
               // placeholder="Select option"
               className="placeholder:"
             >
-              <option value="art">Art</option>
+              <option value="car">Vehicle</option>
               <option value="realEstate">Real Estate</option>
-              <option value="car">Car</option>
+              <option value="art">Art</option>
             </Select>
           }
         />
         <Box>
-          <HStack>
-            <Box width={"50%"} pr={1}>
-              <InputLabel>Attribute</InputLabel>
-            </Box>
-            <Box width={"50%"} pr={1}>
-              <InputLabel>Value </InputLabel>
-            </Box>
-          </HStack>
-          {asset.nft.attributes.map((attr: any, indx: any) => {
-            if (attr.trait_type !== "file")
-              return (
-                // make the key unique
-                <HStack key={attr.trait_type} mb={2}>
-                  <Box width={"50%"} pr={1}>
-                    <InputLabel>{attr.trait_type}</InputLabel>
-                  </Box>
-                  <Box width={"50%"}>
-                    <Input
-                      defaultValue={asset.attributeDetails[indx].defaultValue}
-                      name={attr.trait_type}
-                      type={asset.attributeDetails[indx].inputType}
-                      label={"none"}
-                      placeholder={asset.attributeDetails[indx].defaultValue}
-                      onChange={handleAttributeChange}
-                    />
-                  </Box>
-                </HStack>
-              );
-          })}
-        </Box>
-        <Box>
-          <InputLabel>Linked Document</InputLabel>
-
           <Input
-            value={getAttribute(chainData.linkedPdfKey, asset.nft.attributes)?.value}
-            name={"file"}
-            type={asset.attributeDetails[asset.attributeDetails.length - 1].inputType}
-            label={"none"}
-            placeholder={asset.attributeDetails[asset.attributeDetails.length - 1].defaultValue}
+            value={getAttribute(chainData.linkedPdfKey, asset.nft.attributes)?.value || ""}
+            name={chainData.linkedPdfKey}
+            label="Linked Document"
+            placeholder={"https://website.com/document.pdf"}
             onChange={handleAttributeChange}
           />
           {/* <div className="divider">OR</div>
@@ -177,6 +137,28 @@ export const DescribeForm = ({ state }: { state: State }) => {
             acceptedFileType="pdf"
           /> */}
         </Box>
+        {cleanAttributes(asset.nft.attributes, chainData.linkedPdfKey).map((attr: any) => (
+          <Input
+            key={attr.trait_type}
+            defaultValue={attr.value}
+            name={attr.trait_type}
+            type={attr.inputType}
+            label={attr.trait_type}
+            placeholder={attr.placeholder}
+            onChange={handleAttributeChange}
+          />
+        ))}
+        {/* <Box>
+          <HStack>
+            <Box width={"50%"} pr={1}>
+              <InputLabel>Attribute</InputLabel>
+            </Box>
+            <Box width={"50%"} pr={1}>
+              <InputLabel>Value </InputLabel>
+            </Box>
+          </HStack>
+        </Box> */}
+
         {error && <Alert type="error" message={error} />}
         <Button colorScheme={"teal"} isDisabled={!canProceed()} onClick={() => setStage(stage + 1)}>
           <Flex width={"full"} justifyContent={"space-between"} alignItems={"center"}>

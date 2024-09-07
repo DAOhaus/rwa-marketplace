@@ -2,9 +2,18 @@
 
 import React from "react";
 import { Flex } from "@chakra-ui/react";
+// import { useAccount } from "wagmi";
 import { Card, PageWrapper } from "~~/components";
 
+// import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
+
 const DashboardPage: React.FC = () => {
+  // const { address } = useAccount();
+  // const { data: nftBalance } = useScaffoldReadContract({
+  //   contractName: "NFTFactory",
+  //   functionName: "balanceOf",
+  //   args: [address],
+  // });
   return (
     <PageWrapper>
       <Flex align="start" width={"full"}>

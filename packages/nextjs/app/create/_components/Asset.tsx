@@ -1,12 +1,4 @@
-// interface Attribute {
-//     trait_type: string;
-//     value: string;
-// }
-// interface AttributeDetails {
-//     required: boolean;
-//     inputType: string;
-//     defaultValue: any;
-// }
+// TODO: combine attributeData into the attributes themselves and provider a function to remove unused fields from attribute to be used before saving
 export interface Nft {
   name: string;
   description: string;
@@ -14,18 +6,23 @@ export interface Nft {
   attributes: {
     trait_type: string;
     value: string;
+    placeholder?: string;
+    inputType?: string;
+    required?: boolean;
   }[];
 }
 export interface Asset {
   nft: Nft;
-  attributeDetails: {
-    required: boolean;
-    inputType: string;
-    defaultValue: any;
-  }[];
   category: string;
   id: bigint;
   receipt: any;
+}
+
+interface AssetTypes {
+  vehicle: Asset;
+  art: Asset;
+  realEstate: Asset;
+  [key: string]: Asset;
 }
 
 export const art: Asset = {
@@ -35,23 +32,13 @@ export const art: Asset = {
     name: "",
     attributes: [
       // change the values?
-      { trait_type: "title", value: "Title" },
-      { trait_type: "artist", value: "Artist" },
-      { trait_type: "year created", value: "" },
+      { trait_type: "title", value: "", placeholder: "Title" },
+      { trait_type: "artist", value: "", placeholder: "Artist" },
+      { trait_type: "year", inputType: "number", value: "", placeholder: "1999" },
       { trait_type: "medium", value: "" },
       { trait_type: "dimensions", value: "" },
-      { trait_type: "file", value: "" },
     ],
   },
-  attributeDetails: [
-    // change the defaultValues?
-    { required: true, inputType: "text", defaultValue: "Title" },
-    { required: true, inputType: "text", defaultValue: "Artist" },
-    { required: false, inputType: "number", defaultValue: "0" },
-    { required: false, inputType: "text", defaultValue: "" },
-    { required: false, inputType: "text", defaultValue: "" },
-    { required: true, inputType: "text", defaultValue: "https://website.com/document.pdf" },
-  ],
   category: "art",
   id: BigInt(0),
   receipt: {},
@@ -68,45 +55,37 @@ export const realEstate: Asset = {
       { trait_type: "year_built", value: "" },
       { trait_type: "bedrooms", value: "" },
       { trait_type: "bathrooms", value: "" },
-      { trait_type: "file", value: "" },
     ],
   },
-  attributeDetails: [
-    { required: true, inputType: "text", defaultValue: "" },
-    { required: true, inputType: "text", defaultValue: "" },
-    { required: false, inputType: "number", defaultValue: "0" },
-    { required: false, inputType: "number", defaultValue: "0" },
-    { required: false, inputType: "number", defaultValue: "0" },
-    { required: false, inputType: "number", defaultValue: "0" },
-    { required: true, inputType: "text", defaultValue: "https://website.com/document.pdf" },
-  ],
   category: "realEstate", //TOANSWER: are these keys for after an NFT is minted or what is the purpose?
   id: BigInt(0),
   receipt: {},
 };
-export const car: Asset = {
+export const vehicle: Asset = {
   nft: {
     description: "",
     image: "",
     name: "",
     attributes: [
-      { trait_type: "model", value: "" },
-      { trait_type: "make", value: "" },
-      { trait_type: "year", value: "" },
-      { trait_type: "color", value: "" },
-      { trait_type: "mileage", value: "" },
-      { trait_type: "file", value: "" },
+      { trait_type: "model", value: "", placeholder: "G Wagon" },
+      { trait_type: "make", value: "", placeholder: "Mercedes" },
+      { trait_type: "year", value: "", inputType: "number", placeholder: "2020" },
+      { trait_type: "color", value: "", placeholder: "White" },
+      { trait_type: "mileage", value: "", inputType: "number", placeholder: "100000" },
     ],
   },
-  attributeDetails: [
-    { required: true, inputType: "text", defaultValue: "" },
-    { required: true, inputType: "text", defaultValue: "" },
-    { required: true, inputType: "number", defaultValue: "0" },
-    { required: false, inputType: "text", defaultValue: "" },
-    { required: false, inputType: "number", defaultValue: "0" },
-    { required: true, inputType: "text", defaultValue: "https://website.com/document.pdf" },
-  ],
-  category: "car",
+  category: "vehicle",
   id: BigInt(0),
   receipt: {},
 };
+
+export const sanitizeNft = (nft: Nft) => {
+  return {
+    ...nft,
+    attributes: nft.attributes.map(attr => ({ trait_type: attr.trait_type, value: attr.value })),
+  };
+};
+
+const assetTypes: AssetTypes = { vehicle, art, realEstate };
+
+export default assetTypes;

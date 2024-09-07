@@ -23,6 +23,7 @@ interface ChainData {
   baseIPFSUrl: string;
   kycChainId: number;
   kycContractAddress: string;
+  emptyAddress: string;
   nftFactoryKycAddress: string;
 }
 const chainData: ChainData = {
@@ -34,6 +35,7 @@ const chainData: ChainData = {
   defaultPDFHash: "bafybeicqz376dgkrmrykjcrdafclqke4bzzqao3yymbbly4fjr4kdwttii",
   kycContractAddress: "0x33F28C3a636B38683a38987100723f2e2d3d038e",
   kycChainId: 7887,
+  emptyAddress: "0x0000000000000000000000000000000000000000",
   nftFactoryKycAddress: "0xe09d66ab872Da89b2d875E7c86cBe7cC5e3667EA",
   31337: {
     stable: "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",

@@ -46,7 +46,7 @@ const ExportedInput: FC<Props> = ({
     "block pl-4 flex-1 border-0 bg-transparent p-2 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6";
   return (
     <div className={"col-span-full" + " " + className}>
-      {label !== "none" && <Label htmlFor={id || name}>{label || capitalize(name)}</Label>}
+      {label !== "none" && <Label htmlFor={id || name}>{capitalize(label) || capitalize(name)}</Label>}
       <div>
         <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-full">
           {inputElement ? (

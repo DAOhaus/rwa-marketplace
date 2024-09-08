@@ -1,15 +1,16 @@
 // TODO: combine attributeData into the attributes themselves and provider a function to remove unused fields from attribute to be used before saving
+export interface Attribute {
+  trait_type: string;
+  value: string;
+  placeholder?: string;
+  inputType?: string;
+  required?: boolean;
+}
 export interface Nft {
   name: string;
   description: string;
   image: string;
-  attributes: {
-    trait_type: string;
-    value: string;
-    placeholder?: string;
-    inputType?: string;
-    required?: boolean;
-  }[];
+  attributes: Attribute[];
 }
 export interface Asset {
   nft: Nft;
@@ -32,9 +33,9 @@ export const art: Asset = {
     name: "",
     attributes: [
       // change the values?
-      { trait_type: "title", value: "", placeholder: "Title" },
-      { trait_type: "artist", value: "", placeholder: "Artist" },
-      { trait_type: "year", inputType: "number", value: "", placeholder: "1999" },
+      { trait_type: "title", value: "", placeholder: "Man in Hat", required: true },
+      { trait_type: "artist", value: "", placeholder: "Davinci", required: true },
+      { trait_type: "year", inputType: "number", value: "", placeholder: "1999", required: true },
       { trait_type: "medium", value: "" },
       { trait_type: "dimensions", value: "" },
     ],
@@ -49,9 +50,9 @@ export const realEstate: Asset = {
     image: "",
     name: "",
     attributes: [
-      { trait_type: "address", value: "" },
-      { trait_type: "property_type", value: "" },
-      { trait_type: "square_footage", value: "" },
+      { trait_type: "address", value: "", required: true },
+      { trait_type: "property_type", value: "", required: true },
+      { trait_type: "square_footage", value: "", required: true },
       { trait_type: "year_built", value: "" },
       { trait_type: "bedrooms", value: "" },
       { trait_type: "bathrooms", value: "" },
@@ -67,9 +68,9 @@ export const vehicle: Asset = {
     image: "",
     name: "",
     attributes: [
-      { trait_type: "model", value: "", placeholder: "G Wagon" },
-      { trait_type: "make", value: "", placeholder: "Mercedes" },
-      { trait_type: "year", value: "", inputType: "number", placeholder: "2020" },
+      { trait_type: "model", value: "", placeholder: "G Wagon", required: true },
+      { trait_type: "make", value: "", placeholder: "Mercedes", required: true },
+      { trait_type: "year", value: "", inputType: "number", placeholder: "2020", required: true },
       { trait_type: "color", value: "", placeholder: "White" },
       { trait_type: "mileage", value: "", inputType: "number", placeholder: "100000" },
     ],

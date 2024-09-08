@@ -1,10 +1,6 @@
-// TODO: bring over the IPFS upload service but don't call it "fleek"
-// TODO: bring over the IPFS upload service but don't call it "fleek"
-// import { useState } from "react";
 import { useState } from "react";
+import AssetTypes from "../../../types/Asset";
 import { State } from "../page";
-// import { createAttribute, getAttribute } from "~~/utils/helpers";
-import AssetTypes from "./Asset";
 // import UploadInput from "./UploadInput";
 import { Box, Flex, Select, Stack } from "@chakra-ui/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
@@ -12,13 +8,7 @@ import { Alert, Button, Input, Text } from "~~/components";
 import chainData from "~~/utils/chainData";
 import { cleanAttributes, getAttribute, updateAttributes } from "~~/utils/helpers";
 
-// import Input, { Label } from "~~/components/Input";
-// import { singleUpload } from "~~/services/fleek";
-// import useGlobalState, { nft } from "~~/services/store/store";
-// import { groupByKeyValue } from "~~/utils/helpers";
-
-// const cleanAttributes = (attributes: Array<{ trait_type: string }>, duplicateString: string) =>
-//   (attributes || []).filter((att: { trait_type: string }) => att.trait_type != duplicateString);
+// TODO: all data fields aren't clearing on nft mint, such as document, the attributes of the nft itself
 
 export const DescribeForm = ({ state }: { state: State }) => {
   const { stage, setStage, asset, setAsset } = state;
@@ -155,78 +145,6 @@ export const DescribeForm = ({ state }: { state: State }) => {
             </Select>
           }
         />
-        {asset.category === "vehicle" ? (
-          <Box>
-            <Input
-              name={chainData.linkedPdfKey}
-              label="DIMO User Address"
-              placeholder={"0xf5c0337B31464D4f2232FEb2E71b4c7A175e7c52"}
-              onChange={(e: { target: { value: any; name: any } }) => {
-                setDimoAddress(e.target.value);
-              }}
-            />
-            <Button
-              colorScheme={"teal"}
-              isDisabled={!canProceedDimo()}
-              onClick={async () => {
-                try {
-                  const response = await fetch(endpoint, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ query: query1 }),
-                  });
-                  if (response.ok) {
-                    const result = await response.json();
-                    const tokenId = result.data["vehicles"]["nodes"][0]["tokenId"];
-                    // console.log('tokenId: ', tokenId);
-
-                    try {
-                      const response2 = await fetch(endpoint, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ query: query2(tokenId) }),
-                      });
-                      if (response2.ok) {
-                        const result2 = await response2.json();
-                        const dimoAttributes = result2.data["vehicle"]["definition"];
-                        //console.log('dimo attributes: ', dimoAttributes);
-                        setAsset({
-                          ...asset,
-                          nft: {
-                            ...asset.nft,
-                            attributes: updateAttributes(
-                              updateAttributes(
-                                updateAttributes(asset.nft.attributes, "model", dimoAttributes["model"]),
-                                "make",
-                                dimoAttributes["make"],
-                              ),
-                              "year",
-                              dimoAttributes["year"],
-                            ),
-                          },
-                        });
-                      } else {
-                        console.error("Error:", response2.statusText);
-                      }
-                    } catch (error) {
-                      console.error("Fetch error:", error);
-                    }
-                  } else {
-                    console.error("Error:", response.statusText);
-                  }
-                } catch (error) {
-                  console.error("Fetch error:", error);
-                }
-              }}
-            >
-              <Flex width={"full"} justifyContent={"space-between"} alignItems={"center"}>
-                Autocomplete
-              </Flex>
-            </Button>
-          </Box>
-        ) : (
-          <></>
-        )}
         <Box>
           <Input
             value={getAttribute(chainData.linkedPdfKey, asset.nft.attributes)?.value || ""}
@@ -245,17 +163,101 @@ export const DescribeForm = ({ state }: { state: State }) => {
             acceptedFileType="pdf"
           /> */}
         </Box>
-        {cleanAttributes(asset.nft.attributes, chainData.linkedPdfKey).map((attr: any) => (
-          <Input
-            key={attr.trait_type}
-            defaultValue={attr.value}
-            name={attr.trait_type}
-            type={attr.inputType}
-            label={attr.trait_type}
-            placeholder={attr.placeholder}
-            onChange={handleAttributeChange}
-          />
-        ))}
+        {asset.category === "vehicle" ? (
+          <Box>
+            <Input
+              name={"dimo"}
+              label="DIMO User"
+              placeholder={"0xf5c0337B31464D4f2232FEb2E71b4c7A175e7c52"}
+              note={
+                <span>
+                  Optional - this will populate the fields below with your car data registered in DIMO.{" "}
+                  <a href="https://dimo.xyz" target="_blank" className="underline">
+                    Learn More.
+                  </a>{" "}
+                </span>
+              }
+              onChange={(e: { target: { value: any; name: any } }) => {
+                setDimoAddress(e.target.value);
+              }}
+              groupedElemet={
+                <Button
+                  colorScheme={"teal"}
+                  isDisabled={!canProceedDimo()}
+                  onClick={async () => {
+                    try {
+                      const response = await fetch(endpoint, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ query: query1 }),
+                      });
+                      if (response.ok) {
+                        const result = await response.json();
+                        const tokenId = result.data["vehicles"]["nodes"][0]["tokenId"];
+                        // console.log('tokenId: ', tokenId);
+
+                        try {
+                          const response2 = await fetch(endpoint, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ query: query2(tokenId) }),
+                          });
+                          if (response2.ok) {
+                            const result2 = await response2.json();
+                            const dimoAttributes = result2.data["vehicle"]["definition"];
+                            //console.log('dimo attributes: ', dimoAttributes);
+                            setAsset({
+                              ...asset,
+                              nft: {
+                                ...asset.nft,
+                                attributes: updateAttributes(
+                                  updateAttributes(
+                                    updateAttributes(asset.nft.attributes, "model", dimoAttributes["model"]),
+                                    "make",
+                                    dimoAttributes["make"],
+                                  ),
+                                  "year",
+                                  dimoAttributes["year"],
+                                ),
+                              },
+                            });
+                          } else {
+                            console.error("Error:", response2.statusText);
+                          }
+                        } catch (error) {
+                          console.error("Fetch error:", error);
+                        }
+                      } else {
+                        console.error("Error:", response.statusText);
+                      }
+                    } catch (error) {
+                      console.error("Fetch error:", error);
+                    }
+                  }}
+                >
+                  <Flex width={"full"} justifyContent={"space-between"} alignItems={"center"}>
+                    import
+                  </Flex>
+                </Button>
+              }
+            />
+          </Box>
+        ) : (
+          <></>
+        )}
+        {cleanAttributes(asset.nft.attributes, chainData.linkedPdfKey)
+          .filter(a => a.required)
+          .map((attr: any) => (
+            <Input
+              key={attr.trait_type}
+              defaultValue={attr.value}
+              name={attr.trait_type}
+              type={attr.inputType}
+              label={attr.trait_type}
+              placeholder={attr.placeholder}
+              onChange={handleAttributeChange}
+            />
+          ))}
         {/* <Box>
           <HStack>
             <Box width={"50%"} pr={1}>

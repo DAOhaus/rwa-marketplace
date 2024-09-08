@@ -1,6 +1,7 @@
 //TODO: bring over nftInterface
 // import { nftInterface } from "./store/store";
 import { formatEther } from "viem";
+import { Attribute } from "~~/types/Asset";
 
 export const format = (
   value: any,
@@ -50,11 +51,11 @@ export function createAttribute(key: string, value: any) {
   return { trait_type: key, value: value };
 }
 
-export const cleanAttributes = (attributes: Array<{ trait_type: string }>, duplicateString: string) =>
+export const cleanAttributes = (attributes: Attribute[], duplicateString: string) =>
   (attributes || []).filter((att: { trait_type: string }) => att.trait_type != duplicateString);
 
 // Function to update or add an attribute in the attributes array
-export function updateAttributes(attributes: Array<{ trait_type: string; value: any }>, key: string, value: any) {
+export function updateAttributes(attributes: Attribute[], key: string, value: any) {
   // Check if the key already exists in the attributes
   const index = attributes.findIndex(att => att.trait_type === key);
 
@@ -98,9 +99,9 @@ export const shortenHash = (hash: string) => {
   return `${hash.slice(0, 6)}...${hash.slice(-4)}`;
 };
 
-export function getAttribute(string: string, attributes: Array<{ trait_type: string; value: string }>) {
+export function getAttribute(string: string, attributes: Attribute[]) {
   if (!attributes || attributes.length === 0) return;
-  return attributes?.find((attribute: { trait_type: string; value: string }) => {
+  return attributes?.find((attribute: Attribute) => {
     if (attribute.trait_type?.toLowerCase && string?.toLowerCase) {
       return attribute.trait_type.toLowerCase() === string.toLowerCase();
     }
@@ -116,4 +117,15 @@ export const jsonToStringSafe = (e: any) => {
     console.error(error);
   }
   return returnString;
+};
+
+export const stringToJsonSafe = (e: any) => {
+  let returnJson;
+  try {
+    returnJson = JSON.parse(e);
+  } catch (error) {
+    console.log("error converting string to json");
+    console.error(error);
+  }
+  return returnJson;
 };

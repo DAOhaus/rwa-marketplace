@@ -976,6 +976,7 @@ const deployedContracts = {
         approve: "contracts/NFTFactory.sol",
         balanceOf: "contracts/NFTFactory.sol",
         getApproved: "contracts/NFTFactory.sol",
+        getTokensByAddress: "contracts/NFTFactory.sol",
         isApprovedForAll: "contracts/NFTFactory.sol",
         linkedTokenFactoryAddress: "contracts/NFTFactory.sol",
         lock: "contracts/NFTFactory.sol",
@@ -996,7 +997,6 @@ const deployedContracts = {
         supportsInterface: "contracts/NFTFactory.sol",
         symbol: "contracts/NFTFactory.sol",
         tokenURI: "contracts/NFTFactory.sol",
-        tokensByAddress: "contracts/NFTFactory.sol",
         transferFrom: "contracts/NFTFactory.sol",
         transferOwnership: "contracts/NFTFactory.sol",
         unlock: "contracts/NFTFactory.sol",
@@ -2411,7 +2411,7 @@ const deployedContracts = {
       },
     },
     NFTFactory: {
-      address: "0x4A679253410272dd5232B3Ff7cF5dbB88f295319",
+      address: "0xa82fF9aFd8f496c3d6ac40E2a0F282E47488CFc9",
       abi: [
         {
           inputs: [
@@ -2703,6 +2703,25 @@ const deployedContracts = {
               internalType: "address",
               name: "",
               type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+          ],
+          name: "getTokensByAddress",
+          outputs: [
+            {
+              internalType: "uint256[]",
+              name: "",
+              type: "uint256[]",
             },
           ],
           stateMutability: "view",
@@ -3085,30 +3104,6 @@ const deployedContracts = {
               internalType: "string",
               name: "",
               type: "string",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          name: "tokensByAddress",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
             },
           ],
           stateMutability: "view",
@@ -4210,6 +4205,7 @@ const deployedContracts = {
         approve: "contracts/NFTFactory.sol",
         balanceOf: "contracts/NFTFactory.sol",
         getApproved: "contracts/NFTFactory.sol",
+        getTokensByAddress: "contracts/NFTFactory.sol",
         isApprovedForAll: "contracts/NFTFactory.sol",
         linkedTokenFactoryAddress: "contracts/NFTFactory.sol",
         lock: "contracts/NFTFactory.sol",
@@ -4230,7 +4226,6 @@ const deployedContracts = {
         supportsInterface: "contracts/NFTFactory.sol",
         symbol: "contracts/NFTFactory.sol",
         tokenURI: "contracts/NFTFactory.sol",
-        tokensByAddress: "contracts/NFTFactory.sol",
         transferFrom: "contracts/NFTFactory.sol",
         transferOwnership: "contracts/NFTFactory.sol",
         unlock: "contracts/NFTFactory.sol",

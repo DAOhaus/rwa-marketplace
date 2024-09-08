@@ -22,7 +22,11 @@ contract NFTFactory is ERC721URIStorage, Ownable, Pausable {
 	}
 
 	mapping(uint256 => NFTData) public nftData;
-	mapping(address => uint256[]) public tokensByAddress;
+	mapping(address => uint256[]) internal tokensByAddress;
+
+	function getTokensByAddress(address owner) public view returns (uint256[] memory) {
+		return tokensByAddress[owner];
+	}
 
 	event TokenMinted(uint256 indexed nftId, address indexed tokenAddress);
 	event MetadataLocked(uint256 tokenId);
@@ -95,7 +99,7 @@ contract NFTFactory is ERC721URIStorage, Ownable, Pausable {
 			paused: false
 		});
 
-		tokensByAddress[to].push(tokenId); // Add token to the new owner's list
+		// tokensByAddress[to].push(tokenId); // Add token to the new owner's list
 
 		emit TokenMinted(tokenId, linkedTokenAddress);
 		return tokenId;

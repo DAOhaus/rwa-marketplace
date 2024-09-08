@@ -5,7 +5,7 @@
 // TODO: fix prettier putting in spaces that eslint is throwing errors on
 import { createRef, useCallback, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Asset, vehicle } from "./_components/Asset";
+import { Asset, vehicle } from "../../types/Asset";
 import { DescribeForm } from "./_components/DescribeForm";
 import { MintForm } from "./_components/MintForm";
 import { TokenizeForm } from "./_components/TokenizeForm";

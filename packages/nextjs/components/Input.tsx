@@ -1,5 +1,5 @@
 import React, { FC, ReactElement } from "react";
-import { Input, Text, Textarea } from "@chakra-ui/react";
+import { Input, InputGroup, InputRightElement, Text, Textarea } from "@chakra-ui/react";
 import { capitalize } from "lodash";
 
 interface Props {
@@ -16,6 +16,7 @@ interface Props {
   note?: ReactElement | string | undefined;
   inputElement?: ReactElement;
   defaultValue?: any;
+  groupedElemet?: ReactElement;
   onChange?: (e: any) => void;
 }
 
@@ -38,6 +39,7 @@ const ExportedInput: FC<Props> = ({
   value,
   defaultValue,
   inputElement,
+  groupedElemet,
   className,
   onChange,
 }) => {
@@ -65,17 +67,19 @@ const ExportedInput: FC<Props> = ({
               placeholder={placeholder}
             />
           ) : (
-            <Input
-              type={type}
-              value={value}
-              defaultValue={defaultValue}
-              onChange={onChange}
-              name={name}
-              id={id || name}
-              autoComplete={autoComplete || name}
-              // className={inputClasses}
-              placeholder={placeholder}
-            />
+            <InputGroup>
+              <Input
+                type={type}
+                value={value}
+                defaultValue={defaultValue}
+                onChange={onChange}
+                name={name}
+                id={id || name}
+                autoComplete={autoComplete || name}
+                placeholder={placeholder}
+              />
+              <InputRightElement width={"fit-content"}>{groupedElemet}</InputRightElement>
+            </InputGroup>
           )}
         </div>
         {note && <span className="text-xs leading-5 text-gray-400 block mb-2">{note}</span>}

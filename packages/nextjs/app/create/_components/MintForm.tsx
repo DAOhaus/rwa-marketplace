@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { sanitizeNft } from "../../../types/Asset";
 import { Erc20Data, State } from "../page";
-import { sanitizeNft } from "./Asset";
 import { Box, Code, Flex, HStack, Stack } from "@chakra-ui/react";
 import { parseEther } from "viem";
 import { useAccount } from "wagmi";
@@ -171,7 +171,7 @@ export const MintForm = ({ state }: { state: State }) => {
           </div>
         </>
       )}
-      {!canMint && mintData.blockNumber && (
+      {!loadingStates.nft && mintData.blockNumber && (
         <div className="flex mt-2">
           🥳 ERC20 adress:&nbsp;&nbsp;
           <Address address={mintData.tokenAddress} disableAddressLink={true} format="short" size="sm" />

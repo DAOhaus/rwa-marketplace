@@ -14,6 +14,10 @@ import { base, baseSepolia, mainnet, sepolia } from "viem/chains";
 // reusing "TokenSale" at 0x81dfa8F523D865323dB0e2727513F1c0331E890F
 // ✅ Token Sale 0x81dfa8F523D865323dB0e2727513F1c0331E890F
 
+// KINTO Most Recnet
+// KYC NFT => 0x723050d90cd9D28868E4115beF77e0a181e4E475
+// KYC ERC20 => 0x63Ab39CaCe56889a0feCE3757e5461176c1256eB
+
 interface ChainData {
   [key: string]: any;
   linkedTokenKey: string;
@@ -36,7 +40,8 @@ const chainData: ChainData = {
   kycContractAddress: "0x33F28C3a636B38683a38987100723f2e2d3d038e",
   kycChainId: 7887,
   emptyAddress: "0x0000000000000000000000000000000000000000",
-  nftFactoryKycAddress: "0xe09d66ab872Da89b2d875E7c86cBe7cC5e3667EA",
+  // nftFactoryKycAddress: "0xe09d66ab872Da89b2d875E7c86cBe7cC5e3667EA",
+  nftFactoryKycAddress: "0x723050d90cd9D28868E4115beF77e0a181e4E475",
   31337: {
     stable: "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
   },

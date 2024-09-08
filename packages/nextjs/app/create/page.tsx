@@ -12,6 +12,7 @@ import { TokenizeForm } from "./_components/TokenizeForm";
 import { Box, Grid, Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react";
 import { useDropzone } from "react-dropzone";
 import { PhotoIcon } from "@heroicons/react/24/outline";
+import { Input } from "~~/components";
 import { singleUpload } from "~~/services/ipfs";
 
 enum Stage {
@@ -78,30 +79,16 @@ export default function Page() {
     }
   };
 
+  const handleInputChange = (e: { target: { value: any } }) => {
+    console.log("e", e, e.target.value);
+    setAsset({ ...asset, nft: { ...asset.nft, image: e.target.value } });
+  };
+
+  console.log("asset image", asset.nft.image);
+
   // RENDER
   return (
     <Grid w={"100vw"} h={"full"} templateColumns="repeat(2, 1fr)" gap={0}>
-      <Box
-        {...getRootProps()}
-        ref={dropZoneRef}
-        backgroundImage={asset.nft.image || ""}
-        backgroundRepeat={"no-repeat"}
-        backgroundSize={"contain"}
-        backgroundPosition={"center"}
-        transition={"background-image 1s ease-in-out"}
-        display={"flex"}
-        justifyContent={"center"}
-        alignItems={"center"}
-        borderRight={"1px solid #CBCCE0"}
-        className={asset.image ? "auto" : "cursor-pointer"}
-      >
-        {!asset.nft.image && (
-          <div className="flex flex-col justify-center ">
-            <PhotoIcon className="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" />
-            Upload Image
-          </div>
-        )}
-      </Box>
       <Box w={"full"} h={"full"} pos="relative" overflow={"hidden scroll"}>
         <Tabs w={"full"} h={"full"} index={stage} isLazy>
           <TabList
@@ -134,6 +121,40 @@ export default function Page() {
             </TabPanel>
           </TabPanels>
         </Tabs>
+      </Box>
+      <Box display={"flex"} flexDir={"column"} justifyContent={"start"} alignItems={"center"} padding={50}>
+        <div
+          {...getRootProps()}
+          ref={dropZoneRef}
+          className="w-full min-h-96 bg-neutral flex justify-center items-center rounded-lg"
+        >
+          <Box
+            backgroundImage={asset.nft.image || ""}
+            backgroundRepeat={"no-repeat"}
+            backgroundSize={"contain"}
+            backgroundPosition={"center"}
+            transition={"background-image 1s ease-in-out"}
+            display={"flex"}
+            justifyContent={"center"}
+            className={"w-full h-full " + (asset.image ? "auto" : "cursor-pointer")}
+          >
+            {!asset.nft.image && (
+              <div className="flex flex-col justify-center ">
+                <PhotoIcon className="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" />
+                Upload Image
+              </div>
+            )}
+          </Box>
+        </div>
+        <div className="flex flex-col justify-center w-full ">
+          <div className="divider mt-8">OR</div>
+          <Input
+            name="NFT Image Url"
+            placeholder="https://ipfs.io/pathToImage.jpg"
+            value={asset.nft.image}
+            onChange={handleInputChange}
+          />
+        </div>
       </Box>
     </Grid>
   );

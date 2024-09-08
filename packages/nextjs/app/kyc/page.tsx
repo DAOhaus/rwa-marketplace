@@ -63,9 +63,11 @@ const kinto = defineChain({
 
 const KintoConnect = () => {
   const [accountInfo, setAccountInfo] = useState<KintoAccountInfo | undefined>(undefined);
+  console.log("accountInfo:", accountInfo);
   const [kycViewerInfo, setKYCViewerInfo] = useState<any | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(true);
   const { NFTFactoryKyc } = getAllContracts(chainData.kycChainId);
+  console.log("NFTFactoryKyc:", NFTFactoryKyc);
   // console.log("page account, kyc, contract:", accountInfo, kycViewerInfo, NFTFactoryKyc);
   const [nftFactoryName, setNftFactoryName] = useState<string | undefined>(undefined);
   const kintoSDK = createKintoSDK(NFTFactoryKyc.address);
@@ -85,20 +87,20 @@ const KintoConnect = () => {
       functionName: "mint",
       args: [
         accountInfo?.walletAddress,
-        "exampletokenuri.com",
+        "https://exampletokenuri.com",
         "0x0000000000000000000000000000000000000000",
         [],
-        true,
-        false,
-        chainData.kycContractAddress,
-        [],
+        "KYC Token",
+        "KTT",
+        [accountInfo?.walletAddress],
+        [100000000000000000000],
       ],
     });
     console.log("data:", data);
     setLoading(true);
     try {
       const response = await kintoSDK.sendTransaction([
-        { to: chainData.nftFactoryKycAddress as `0x${string}`, data, value: BigInt(0) },
+        { to: NFTFactoryKyc.address as `0x${string}`, data, value: BigInt(0) },
       ]);
       console.log("response:", response);
       // await fetchNFTFactory();
@@ -189,7 +191,7 @@ const KintoConnect = () => {
   if (!accountInfo)
     return (
       <PageWrapper>
-        <div onClick={kintoLogin}>Login/Signup using Kinto</div>
+        <div onClick={kintoLogin}>verifying with kinto...</div>
       </PageWrapper>
     );
 

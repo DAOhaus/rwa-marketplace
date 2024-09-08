@@ -24,7 +24,7 @@ const Home: NextPage = () => {
             height={300}
           />
           {/* <SelectForm /> */}
-          <div className="text-gray-500 mb-4">
+          <div className="text-gray-500 mb-4 mt-4">
             <div>securely attach your title to NFT</div>
             <div>get paid for supplying your auto data</div>
             <div>buy cars with verifiable details</div>

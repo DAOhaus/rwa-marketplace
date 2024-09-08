@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity ^0.8.19;
 
 import "./ERC20Ownable.sol";
 
@@ -13,6 +13,7 @@ contract ERC20OwnableKyc is ERC20Ownable {
 	mapping(address => bool) private whitelist;
 	bool public whitelistEnabled = false;
 	bool public kycCheckEnabled = false;
+	// this along with other constant variables for kinto => https://docs.kinto.xyz/kinto-the-safe-l2/building-on-kinto/network-information
 	address public kycContract = 0x33F28C3a636B38683a38987100723f2e2d3d038e;
 
 	// Events for whitelist and KYC/sanctions checks

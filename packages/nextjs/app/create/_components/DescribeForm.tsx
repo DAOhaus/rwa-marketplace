@@ -14,6 +14,7 @@ export const DescribeForm = ({ state }: { state: State }) => {
   const { stage, setStage, asset, setAsset } = state;
   const error = ""; //const [error, setError] = useState("");
   const [dimoAddress, setDimoAddress] = useState("");
+  console.log("dimoAddress:", dimoAddress);
   // const [pdfUploading, setPdfUploading] = useState<boolean>(false);
   // const pdfAttribute = getAttribute(chainData.linkedPdfKey, asset.nft.attributes);
 
@@ -21,10 +22,6 @@ export const DescribeForm = ({ state }: { state: State }) => {
     let can = asset.nft.name && asset.nft.description;
     asset.nft.attributes.map((attr: any) => (can = can && (attr.required ? attr.value : true)));
     return can;
-  };
-
-  const canProceedDimo = () => {
-    return dimoAddress.length === 42;
   };
 
   const handleAttributeChange = (e: { target: { value: any; name: any } }) => {
@@ -163,12 +160,13 @@ export const DescribeForm = ({ state }: { state: State }) => {
             acceptedFileType="pdf"
           /> */}
         </Box>
+        {/* example user address => 0xf5c0337B31464D4f2232FEb2E71b4c7A175e7c52 */}
         {asset.category === "vehicle" ? (
           <Box>
             <Input
               name={"dimo"}
               label="DIMO User"
-              placeholder={"0xf5c0337B31464D4f2232FEb2E71b4c7A175e7c52"}
+              placeholder={"0xf5....7c52"}
               note={
                 <span>
                   Optional - this will populate the fields below with your car data registered in DIMO.{" "}
@@ -183,7 +181,7 @@ export const DescribeForm = ({ state }: { state: State }) => {
               groupedElemet={
                 <Button
                   colorScheme={"teal"}
-                  isDisabled={!canProceedDimo()}
+                  isDisabled={!dimoAddress}
                   onClick={async () => {
                     try {
                       const response = await fetch(endpoint, {
@@ -203,6 +201,7 @@ export const DescribeForm = ({ state }: { state: State }) => {
                             body: JSON.stringify({ query: query2(tokenId) }),
                           });
                           if (response2.ok) {
+                            console.log("response2:", response2);
                             const result2 = await response2.json();
                             const dimoAttributes = result2.data["vehicle"]["definition"];
                             //console.log('dimo attributes: ', dimoAttributes);

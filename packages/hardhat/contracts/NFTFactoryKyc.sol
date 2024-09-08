@@ -83,8 +83,6 @@ contract NFTFactoryKyc is NFTFactory {
 		nftKycData[tokenId].kycCheckEnabled = false;
 		nftKycData[tokenId].whitelistEnabled = false;
 
-		tokensByAddress[to].push(tokenId); // Add token to the new owner's list
-
 		emit TokenMinted(tokenId, to);
 		return tokenId;
 	}

@@ -64,8 +64,8 @@ function NFTDetails({
   const overrideParameters = chainId
     ? {
       chainId,
-      abi: NFTFactory.abi,
-      address: NFTFactory.address,
+      abi: NFTFactory?.abi,
+      address: NFTFactory?.address,
     }
     : {};
 
@@ -190,7 +190,7 @@ function NFTDetails({
         },
         {
           label: "Address",
-          value: NFTFactory.address,
+          value: NFTFactory?.address,
           type: "address",
         },
         {

@@ -8,11 +8,7 @@ import { useAccount } from "wagmi";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { Alert, Button, Text } from "~~/components";
 import { Address } from "~~/components/scaffold-eth";
-import {
-  useScaffoldEventHistory,
-  useScaffoldWatchContractEvent,
-  useScaffoldWriteContract,
-} from "~~/hooks/scaffold-eth";
+import { useScaffoldEventHistory, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import chainData from "~~/utils/chainData";
 import { jsonToStringSafe } from "~~/utils/helpers";
 
@@ -31,12 +27,12 @@ export const MintForm = ({ state }: { state: State }) => {
 
   const router = useRouter();
   const [mintData, setMintData] = useState<any>({});
+  const [isKyc, setIsKyc] = useState<boolean>(false);
   const { address } = useAccount();
   const [error, setError] = useState("");
   const [loadingStates, setLoadingStates] = useState<{ token?: boolean; nft?: boolean; amm?: boolean }>({});
-  console.log("mintData:", mintData);
 
-  const { data: events } = useScaffoldEventHistory({
+  const { data: events = [] } = useScaffoldEventHistory({
     contractName: "NFTFactory",
     eventName: "TokenMinted",
     fromBlock: mintData.blockNumber || 0,
@@ -46,22 +42,22 @@ export const MintForm = ({ state }: { state: State }) => {
     // transactionData: true,
     // receiptData: true,
   });
-  console.log("mint events:", events);
-  useScaffoldWatchContractEvent({
-    contractName: "NFTFactory",
-    eventName: "TokenMinted",
-    // The onLogs function is called whenever a GreetingChange event is emitted by the contract.
-    // Parameters emitted by the event can be destructed using the below example
-    // for this example: event GreetingChange(address greetingSetter, string newGreeting, bool premium, uint256 value);
-    onLogs: logs => {
-      console.log("logs", logs);
-      logs.map(log => {
-        const { nftId, tokenAddress } = log.args;
-        console.log("watched log", nftId, tokenAddress);
-        setMintData({ ...mintData, nftId: BigInt(nftId as bigint).toString(), tokenAddress });
-      });
-    },
-  });
+  console.log("mintData & events:", mintData, events);
+  // useScaffoldWatchContractEvent({
+  //   contractName: "NFTFactory",
+  //   eventName: "TokenMinted",
+  //   // The onLogs function is called whenever a GreetingChange event is emitted by the contract.
+  //   // Parameters emitted by the event can be destructed using the below example
+  //   // for this example: event GreetingChange(address greetingSetter, string newGreeting, bool premium, uint256 value);
+  //   onLogs: logs => {
+  //     console.log("logs", logs);
+  //     logs.map(log => {
+  //       const { nftId, tokenAddress } = log.args;
+  //       console.log("watched log", nftId, tokenAddress);
+  //       setMintData({ ...mintData, nftId: BigInt(nftId as bigint).toString(), tokenAddress });
+  //     });
+  //   },
+  // });
   // console.log("mint form data", stage, asset, erc20Data, loadingStates);
   const { writeContractAsync: mintNft } = useScaffoldWriteContract("NFTFactory");
   const handleMint = async () => {
@@ -72,7 +68,7 @@ export const MintForm = ({ state }: { state: State }) => {
       const rawNftData = { ...asset.nft };
       const preparedNft = sanitizeNft(rawNftData);
       const nftDataString = jsonToStringSafe(preparedNft);
-      const nftMintHash = await mintNft(
+      await mintNft(
         {
           functionName: "mint",
           args: [
@@ -93,14 +89,12 @@ export const MintForm = ({ state }: { state: State }) => {
           },
         },
       );
-      console.log("nft tx hash", nftMintHash);
     } catch (error) {
       console.log("nft mint error", error);
       setError(error as string);
       setLoadingStates({});
     }
     setLoadingStates({});
-    console.log("set stage", stage);
     // setStage(stage.length);
   };
 
@@ -154,7 +148,16 @@ export const MintForm = ({ state }: { state: State }) => {
           <br></br>
         </Code>
       </div>
-
+      <div className="flex items-center space-2">
+        <input
+          type="checkbox"
+          defaultChecked
+          className="checkbox checkbox-md mr-2"
+          checked={isKyc}
+          onChange={() => setIsKyc(!isKyc)}
+        />{" "}
+        Require KYC
+      </div>
       {canMint && (
         <>
           <div className="flex flex-col items-center mt-2 space-x-2">
@@ -174,7 +177,7 @@ export const MintForm = ({ state }: { state: State }) => {
       {!loadingStates.nft && mintData.blockNumber && (
         <div className="flex mt-2">
           🥳 ERC20 adress:&nbsp;&nbsp;
-          <Address address={mintData.tokenAddress} disableAddressLink={true} format="short" size="sm" />
+          <Address address={events[0].args.tokenAddress} disableAddressLink={true} format="short" size="sm" />
         </div>
       )}
       {!canMint && !mintData.blockNumber && <Alert type="warning" message={"Insufficient data for mint"} />}
@@ -196,7 +199,7 @@ export const MintForm = ({ state }: { state: State }) => {
             colorScheme={"teal"}
             isDisabled={!mintData.blockNumber}
             onClick={() => {
-              router.push(`/nft?id=${mintData.nftId}`);
+              router.push(`/nft?id=${events[0].args.nftId}`);
             }}
           >
             <Flex width={"full"} justifyContent={"space-between"} alignItems={"center"}>

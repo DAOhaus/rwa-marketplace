@@ -21,7 +21,7 @@ interface Props {
 }
 
 export const Label = ({ htmlFor = "", children = "" }: { htmlFor?: string; children: ReactElement | string }) => (
-  <Text as="label" htmlFor={htmlFor} className="block font-medium leading-6 text-sm">
+  <Text as="label" htmlFor={htmlFor} className="block font-medium leading-6 text-sm capitalize">
     {children}
   </Text>
 );
@@ -78,7 +78,7 @@ const ExportedInput: FC<Props> = ({
                 autoComplete={autoComplete || name}
                 placeholder={placeholder}
               />
-              <InputRightElement width={"fit-content"}>{groupedElemet}</InputRightElement>
+              {groupedElemet && <InputRightElement width={"fit-content"}>{groupedElemet}</InputRightElement>}
             </InputGroup>
           )}
         </div>

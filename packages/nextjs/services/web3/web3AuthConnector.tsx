@@ -6,7 +6,7 @@ import { Web3AuthConnector } from "@web3auth/web3auth-wagmi-connector";
 import { createConnector as createWagmiConnector } from "wagmi";
 import scaffoldConfig from "~~/scaffold.config";
 
-const clientId = "BPi5PB_UiIZ-cPz1GtV5i1I2iOSOHuimiXBI0e-Oe_u6X3oVAbCiAZOTEBtTXw4tsluTITPqA8zMsfxIKMjiqNQ";
+const clientId = process.env.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID as string;
 
 const chain = scaffoldConfig.targetNetworks[0];
 

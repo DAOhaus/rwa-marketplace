@@ -9,6 +9,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { Alert, Button, Text } from "~~/components";
 import { Address } from "~~/components/scaffold-eth";
 import { useScaffoldEventHistory, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { singleUpload } from "~~/services/ipfs";
 import chainData from "~~/utils/chainData";
 import { jsonToStringSafe } from "~~/utils/helpers";
 
@@ -28,6 +29,7 @@ export const MintForm = ({ state }: { state: State }) => {
   const router = useRouter();
   const [mintData, setMintData] = useState<any>({});
   const [isKyc, setIsKyc] = useState<boolean>(false);
+  const [toIpfs, setToIpfs] = useState<boolean>(false);
   const { address } = useAccount();
   const [error, setError] = useState("");
   const [loadingStates, setLoadingStates] = useState<{ token?: boolean; nft?: boolean; amm?: boolean }>({});
@@ -68,12 +70,17 @@ export const MintForm = ({ state }: { state: State }) => {
       const rawNftData = { ...asset.nft };
       const preparedNft = sanitizeNft(rawNftData);
       const nftDataString = jsonToStringSafe(preparedNft);
+      let ipfsUrl = "";
+      if (toIpfs) {
+        ipfsUrl = await singleUpload(new File([nftDataString || ""], "metadata.json"));
+      }
+      console.log("metadata url: ", ipfsUrl);
       await mintNft(
         {
           functionName: "mint",
           args: [
             address,
-            nftDataString,
+            toIpfs ? ipfsUrl : nftDataString,
             chainData.emptyAddress,
             [],
             erc20Data.name,
@@ -157,6 +164,16 @@ export const MintForm = ({ state }: { state: State }) => {
           onChange={() => setIsKyc(!isKyc)}
         />{" "}
         Require KYC
+      </div>
+      <div className="flex items-center space-2">
+        <input
+          type="checkbox"
+          defaultChecked
+          className="checkbox checkbox-md mr-2"
+          checked={toIpfs}
+          onChange={() => setToIpfs(!toIpfs)}
+        />{" "}
+        Upload to IPFS
       </div>
       {canMint && (
         <>

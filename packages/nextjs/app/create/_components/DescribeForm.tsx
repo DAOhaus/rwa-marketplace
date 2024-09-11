@@ -1,4 +1,3 @@
-import { useState } from "react";
 import AssetTypes from "../../../types/Asset";
 import { State } from "../page";
 // import UploadInput from "./UploadInput";
@@ -13,8 +12,7 @@ import { cleanAttributes, getAttribute, updateAttributes } from "~~/utils/helper
 export const DescribeForm = ({ state }: { state: State }) => {
   const { stage, setStage, asset, setAsset } = state;
   const error = ""; //const [error, setError] = useState("");
-  const [dimoAddress, setDimoAddress] = useState("");
-  console.log("dimoAddress:", dimoAddress);
+  // const [dimoAddress, setDimoAddress] = useState("");
   // const [pdfUploading, setPdfUploading] = useState<boolean>(false);
   // const pdfAttribute = getAttribute(chainData.linkedPdfKey, asset.nft.attributes);
 
@@ -58,33 +56,33 @@ export const DescribeForm = ({ state }: { state: State }) => {
   //   setPdfUploading(false);
   // };
 
-  // Define the GraphQL query
-  const query1 = `{
-  vehicles(filterBy: {owner: "${dimoAddress}"}, first: 1) {
-    nodes {
-      tokenId
-      privileges(first: 10) {
-        nodes {
-          setAt
-          expiresAt
-          id
-        }
-      }
-    }
-  }
-}`;
+  //   // Define the GraphQL queries
+  //   const query1 = `{
+  //     vehicles(filterBy: {owner: "${dimoAddress}"}, first: 1) {
+  //       nodes {
+  //         tokenId
+  //         privileges(first: 10) {
+  //           nodes {
+  //             setAt
+  //             expiresAt
+  //             id
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }`;
 
-  const query2 = (tokenId: any) => `{
-  vehicle (tokenId: ${tokenId}) {
-    definition {
-      make
-      model
-      year
-    }
-  }
-}`;
+  //   const query2 = (tokenId: any) => `{
+  //   vehicle (tokenId: ${tokenId}) {
+  //     definition {
+  //       make
+  //       model
+  //       year
+  //     }
+  //   }
+  // }`;
 
-  const endpoint = "https://identity-api.dimo.zone/query";
+  //   const endpoint = "https://identity-api.dimo.zone/query";
 
   return (
     <>
@@ -160,7 +158,8 @@ export const DescribeForm = ({ state }: { state: State }) => {
             acceptedFileType="pdf"
           /> */}
         </Box>
-        {/* example user address => 0xf5c0337B31464D4f2232FEb2E71b4c7A175e7c52 */}
+
+        {/* // example user address => 0xf5c0337B31464D4f2232FEb2E71b4c7A175e7c52
         {asset.category === "vehicle" ? (
           <Box>
             <Input
@@ -243,7 +242,7 @@ export const DescribeForm = ({ state }: { state: State }) => {
           </Box>
         ) : (
           <></>
-        )}
+        )} */}
         {cleanAttributes(asset.nft.attributes, chainData.linkedPdfKey)
           .filter(a => a.required)
           .map((attr: any) => (

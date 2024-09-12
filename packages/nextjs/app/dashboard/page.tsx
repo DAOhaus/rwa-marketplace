@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 // import { Flex } from "@chakra-ui/react";
 import { useAccount } from "wagmi";
 import { NFTCard, PageWrapper } from "~~/components";
@@ -9,12 +9,30 @@ import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 
 const DashboardPage: React.FC = () => {
   const { address } = useAccount();
-  const { data: ownedTokenIds } = useScaffoldReadContract({
+  const [tokenIds, setTokenIds] = useState<bigint[]>([]);
+  const [lastFetchedAddress, setLastFetchedAddress] = useState<string | undefined>(undefined);
+
+  const { data: fetchedTokenIds, refetch } = useScaffoldReadContract({
     contractName: "NFTFactory",
     functionName: "getTokensByAddress",
     args: [address],
   });
-  console.log("ownedTokenIds:", ownedTokenIds);
+
+  useEffect(() => {
+    const fetchTokenIds = async () => {
+      if ((address && tokenIds.length === 0) || address !== lastFetchedAddress) {
+        await refetch();
+        if (fetchedTokenIds) {
+          setTokenIds([...fetchedTokenIds]);
+          setLastFetchedAddress(address);
+        }
+      }
+    };
+
+    fetchTokenIds();
+  }, [address, lastFetchedAddress, tokenIds.length, refetch, fetchedTokenIds]);
+
+  console.log("!ownedTokenIds:", address, tokenIds);
   return (
     <PageWrapper>
       {/* <Flex align="start" width={"full"}>
@@ -29,7 +47,7 @@ const DashboardPage: React.FC = () => {
       </div> */}
       <h1 className="text-3xl font-bold mb-6 flex items-start text-left w-full">Your NFTs</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 space-4">
-        {ownedTokenIds?.map(id => (
+        {tokenIds?.map(id => (
           <NFTCard key={id} id={id} />
         ))}
       </div>

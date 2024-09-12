@@ -22,6 +22,8 @@ const NFTCard: React.FC<CardProps> = ({ className, id }) => {
     args: [bigIntId],
   }).data;
 
+  // console.log("!id and data", bigIntId, tokenURI);
+
   console.log("tokenURI", tokenURI);
   if (!tokenURI) return;
   const nftData = stringToJsonSafe(tokenURI);

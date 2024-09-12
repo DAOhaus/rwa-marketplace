@@ -20,7 +20,7 @@ const DashboardPage: React.FC = () => {
 
   useEffect(() => {
     const fetchTokenIds = async () => {
-      if (address && address !== lastFetchedAddress && tokenIds.length === 0) {
+      if ((address && tokenIds.length === 0) || address !== lastFetchedAddress) {
         await refetch();
         if (fetchedTokenIds) {
           setTokenIds([...fetchedTokenIds]);

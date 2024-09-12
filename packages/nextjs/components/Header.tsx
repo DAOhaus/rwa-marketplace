@@ -25,6 +25,10 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/create",
   },
   {
+    label: "Marketplace",
+    href: "/marketplace",
+  },
+  {
     label: "KYC",
     href: "/kyc",
   },

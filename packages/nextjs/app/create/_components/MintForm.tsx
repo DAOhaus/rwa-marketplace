@@ -11,7 +11,7 @@ import { Address } from "~~/components/scaffold-eth";
 import { useScaffoldEventHistory, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { singleUpload } from "~~/services/ipfs";
 import chainData from "~~/utils/chainData";
-import { jsonToStringSafe } from "~~/utils/helpers";
+import { createAttribute, jsonToStringSafe } from "~~/utils/helpers";
 
 export const MintForm = ({ state }: { state: State }) => {
   const {
@@ -71,7 +71,7 @@ export const MintForm = ({ state }: { state: State }) => {
         ...asset.nft,
         attributes: [
           ...asset.nft.attributes,
-          { trait_type: "category", value: asset.category, placeholder: "", required: false },
+          createAttribute("category", asset.category, { placeholder: "", required: false }),
         ],
       };
       const preparedNft = sanitizeNft(rawNftData);

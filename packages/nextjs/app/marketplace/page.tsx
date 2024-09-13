@@ -13,7 +13,7 @@ import { NFTCard, PageWrapper } from "~~/components";
 
 // import { Filter } from "./_components/Filter";
 
-const DashboardPage: React.FC = () => {
+const MarketplacePage: React.FC = () => {
   // const { address } = useAccount();
 
   // let not = BigInt(0); // numberOfTokens
@@ -74,4 +74,4 @@ const DashboardPage: React.FC = () => {
   );
 };
 
-export default DashboardPage;
+export default MarketplacePage;

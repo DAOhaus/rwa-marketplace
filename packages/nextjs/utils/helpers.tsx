@@ -46,9 +46,9 @@ export const format = (
   return formattedValue;
 };
 
-export function createAttribute(key: string, value: any) {
+export function createAttribute(key: string, value: any, optional?: object) {
   if (!key || !value) return;
-  return { trait_type: key, value: value };
+  return { trait_type: key, value: value, ...optional };
 }
 
 export const cleanAttributes = (attributes: Attribute[], duplicateString: string) =>

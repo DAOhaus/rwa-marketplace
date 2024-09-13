@@ -75,18 +75,16 @@ export const MintForm = ({ state }: { state: State }) => {
         ],
       };
       const preparedNft = sanitizeNft(rawNftData);
-      const nftDataString = jsonToStringSafe(preparedNft);
-      let ipfsUrl = "";
+      let tokenUri = jsonToStringSafe(preparedNft);
       if (toIpfs) {
-        ipfsUrl = await singleUpload(new File([nftDataString || ""], "metadata.json"));
+        tokenUri = await singleUpload(new File([tokenUri || ""], "metadata.json"));
       }
-      console.log("metadata url: ", ipfsUrl);
       await mintNft(
         {
           functionName: "mint",
           args: [
             address,
-            toIpfs ? ipfsUrl : nftDataString,
+            tokenUri,
             chainData.emptyAddress,
             [],
             erc20Data.name,

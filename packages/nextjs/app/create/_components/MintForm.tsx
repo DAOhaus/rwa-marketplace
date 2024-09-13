@@ -67,7 +67,13 @@ export const MintForm = ({ state }: { state: State }) => {
     setError("");
     setLoadingStates({ nft: true });
     try {
-      const rawNftData = { ...asset.nft };
+      const rawNftData = {
+        ...asset.nft,
+        attributes: [
+          ...asset.nft.attributes,
+          { trait_type: "category", value: asset.category, placeholder: "", required: false },
+        ],
+      };
       const preparedNft = sanitizeNft(rawNftData);
       const nftDataString = jsonToStringSafe(preparedNft);
       let ipfsUrl = "";
@@ -113,6 +119,23 @@ export const MintForm = ({ state }: { state: State }) => {
     asset.nft.description &&
     asset.nft.image &&
     !mintData.blockNumber;
+
+  const inputsMissingMessage = () => {
+    let mes = " \nInputs missing: ";
+    mes = asset.nft.name ? mes : mes + "asset name, ";
+    mes = asset.nft.description ? mes : mes + "asset description, ";
+    mes = asset.nft.image ? mes : mes + "asset image, ";
+    asset.nft.attributes.map(
+      (attr: any) => (mes = attr.required ? (attr.value ? mes : mes + `${attr.trait_type}, `) : mes),
+    );
+
+    mes = erc20Data.name ? mes : mes + "erc20 name, ";
+    mes = erc20Data.symbol ? mes : mes + "erc20 symbol, ";
+    mes = erc20Data.supply ? mes : mes + "erc20 supply, ";
+    mes = mes.slice(0, mes.length - 2) + ".";
+
+    return mes;
+  };
 
   return (
     <Stack pl={2} pr={4} gap={4}>
@@ -197,7 +220,9 @@ export const MintForm = ({ state }: { state: State }) => {
           <Address address={events[0].args.tokenAddress} disableAddressLink={true} format="short" size="sm" />
         </div>
       )}
-      {!canMint && !mintData.blockNumber && <Alert type="warning" message={"Insufficient data for mint"} />}
+      {!canMint && !mintData.blockNumber && (
+        <Alert type="warning" message={"Insufficient data for mint." + inputsMissingMessage()} />
+      )}
 
       {error && <Alert type="error" message={error.toString ? error.toString() : error} />}
       {!address && <Alert type="error" message="Connect wallet in order to be enable mint" />}

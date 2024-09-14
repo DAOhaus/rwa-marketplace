@@ -83,7 +83,7 @@ export const vehicle: Asset = {
 export const sanitizeNft = (nft: Nft) => {
   return {
     ...nft,
-    attributes: nft.attributes.map(attr => ({ trait_type: attr.trait_type, value: attr.value })),
+    attributes: nft.attributes.map(attr => attr.value && { trait_type: attr.trait_type, value: attr.value }),
   };
 };
 

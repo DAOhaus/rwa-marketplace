@@ -5,6 +5,7 @@ export interface Attribute {
   placeholder?: string;
   inputType?: string;
   required?: boolean;
+  hideInList?: boolean;
 }
 export interface Nft {
   name: string;
@@ -32,7 +33,7 @@ export const art: Asset = {
     image: "",
     name: "",
     attributes: [
-      // change the values?
+      { trait_type: "cateogry", value: "art", hideInList: true },
       { trait_type: "title", value: "", placeholder: "Man in Hat", required: true },
       { trait_type: "artist", value: "", placeholder: "Davinci", required: true },
       { trait_type: "year", inputType: "number", value: "", placeholder: "1999", required: true },
@@ -50,10 +51,11 @@ export const realEstate: Asset = {
     image: "",
     name: "",
     attributes: [
+      { trait_type: "cateogry", value: "real estate", hideInList: true },
       { trait_type: "address", value: "", required: true },
-      { trait_type: "property_type", value: "", required: true },
-      { trait_type: "square_footage", value: "", required: true },
-      { trait_type: "year_built", value: "" },
+      { trait_type: "property type", value: "", required: true },
+      { trait_type: "square footage", value: "", required: true },
+      { trait_type: "year built", value: "" },
       { trait_type: "bedrooms", value: "" },
       { trait_type: "bathrooms", value: "" },
     ],
@@ -68,6 +70,7 @@ export const vehicle: Asset = {
     image: "",
     name: "",
     attributes: [
+      { trait_type: "cateogry", value: "vehicle", hideInList: true },
       { trait_type: "model", value: "", placeholder: "G Wagon", required: true },
       { trait_type: "make", value: "", placeholder: "Mercedes", required: true },
       { trait_type: "year", value: "", inputType: "number", placeholder: "2020", required: true },
@@ -80,7 +83,7 @@ export const vehicle: Asset = {
   receipt: {},
 };
 
-export const sanitizeNft = (nft: Nft) => {
+export const sanitizeNftAttributes = (nft: Nft) => {
   return {
     ...nft,
     attributes: nft.attributes.map(attr => attr.value && { trait_type: attr.trait_type, value: attr.value }),

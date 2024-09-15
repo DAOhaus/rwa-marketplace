@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { sanitizeNft } from "../../../types/Asset";
+import { sanitizeNftAttributes } from "../../../types/Asset";
 import { Erc20Data, State } from "../page";
 import { Box, Code, Flex, HStack, Stack } from "@chakra-ui/react";
 import { parseEther } from "viem";
@@ -69,12 +69,9 @@ export const MintForm = ({ state }: { state: State }) => {
     try {
       const rawNftData = {
         ...asset.nft,
-        attributes: [
-          ...asset.nft.attributes,
-          createAttribute("category", asset.category, { placeholder: "", required: false }),
-        ],
+        attributes: [...asset.nft.attributes, createAttribute("category", asset.category)],
       };
-      const preparedNft = sanitizeNft(rawNftData);
+      const preparedNft = sanitizeNftAttributes(rawNftData);
       let tokenUri = jsonToStringSafe(preparedNft);
       if (toIpfs) {
         tokenUri = await singleUpload(new File([tokenUri || ""], "metadata.json"));
@@ -155,19 +152,11 @@ export const MintForm = ({ state }: { state: State }) => {
           <br></br>
           <span className="font-bold">attributes</span>:
           <Box pl={4}>
-            {asset.nft.attributes.map((attr: any, i: any) => {
-              return attr.required ? (
-                <Text display={"block"} key={i}>
-                  <span className="font-bold">{attr.trait_type}</span>: {attr.value}
-                </Text>
-              ) : (
-                attr.value && (
-                  <Text display={"block"} key={i}>
-                    <span className="font-bold">{attr.trait_type}</span>: {attr.value}
-                  </Text>
-                )
-              );
-            })}
+            {sanitizeNftAttributes(asset.nft).attributes.map((attr: any, i: any) => (
+              <Text display={"block"} key={i}>
+                <span className="font-bold">{attr.trait_type}</span>: {attr.value}
+              </Text>
+            ))}
           </Box>
         </Code>
       </div>

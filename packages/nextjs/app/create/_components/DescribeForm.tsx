@@ -123,15 +123,10 @@ export const DescribeForm = ({ state }: { state: State }) => {
               onChange={e => {
                 const newCategory = e.target.value;
                 if (newCategory !== null) {
-                  setAsset({
-                    ...asset,
-                    nft: { ...asset.nft, attributes: AssetTypes[newCategory].nft.attributes },
-                    category: newCategory,
-                  });
+                  setAsset(AssetTypes[newCategory]);
                 }
               }}
               value={asset.category}
-              // placeholder="Select option"
               className="placeholder:"
             >
               <option value="vehicle">Vehicle</option>
@@ -243,17 +238,19 @@ export const DescribeForm = ({ state }: { state: State }) => {
         ) : (
           <></>
         )} */}
-        {cleanAttributes(asset.nft.attributes, chainData.linkedPdfKey).map((attr: any) => (
-          <Input
-            key={attr.trait_type}
-            defaultValue={attr.value}
-            name={attr.trait_type}
-            type={attr.inputType}
-            label={attr.trait_type}
-            placeholder={attr.placeholder}
-            onChange={handleAttributeChange}
-          />
-        ))}
+        {cleanAttributes(asset.nft.attributes, chainData.linkedPdfKey).map((attr: any) =>
+          attr.hideInList ? null : (
+            <Input
+              key={attr.trait_type}
+              defaultValue={attr.value}
+              name={attr.trait_type}
+              type={attr.inputType}
+              label={attr.trait_type}
+              placeholder={attr.placeholder}
+              onChange={handleAttributeChange}
+            />
+          ),
+        )}
         {/* <Box>
           <HStack>
             <Box width={"50%"} pr={1}>

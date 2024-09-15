@@ -7,7 +7,7 @@ import { parseEther } from "viem";
 import { useAccount } from "wagmi";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { Alert, Button, Text } from "~~/components";
-import { Address } from "~~/components/scaffold-eth";
+// import { Address } from "~~/components/scaffold-eth";
 import { useScaffoldEventHistory, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { singleUpload } from "~~/services/ipfs";
 import chainData from "~~/utils/chainData";
@@ -155,11 +155,19 @@ export const MintForm = ({ state }: { state: State }) => {
           <br></br>
           <span className="font-bold">attributes</span>:
           <Box pl={4}>
-            {asset.nft.attributes.map((attr: any, i: any) => (
-              <Text display={"block"} key={i}>
-                <span className="font-bold">{attr.trait_type}</span>: {attr.value}
-              </Text>
-            ))}
+            {asset.nft.attributes.map((attr: any, i: any) => {
+              return attr.required ? (
+                <Text display={"block"} key={i}>
+                  <span className="font-bold">{attr.trait_type}</span>: {attr.value}
+                </Text>
+              ) : (
+                attr.value && (
+                  <Text display={"block"} key={i}>
+                    <span className="font-bold">{attr.trait_type}</span>: {attr.value}
+                  </Text>
+                )
+              );
+            })}
           </Box>
         </Code>
       </div>
@@ -215,7 +223,7 @@ export const MintForm = ({ state }: { state: State }) => {
       {!loadingStates.nft && mintData.blockNumber && (
         <div className="flex mt-2">
           🥳 ERC20 adress:&nbsp;&nbsp;
-          <Address address={events[0].args.tokenAddress} disableAddressLink={true} format="short" size="sm" />
+          {/* TODO: <Address address={events[0].args.tokenAddress} disableAddressLink={true} format="short" size="sm" /> */}
         </div>
       )}
       {!canMint && !mintData.blockNumber && (

@@ -13,8 +13,9 @@ export const singleUpload = async (file: any, path?: string, onError?: ((arg0: s
       client,
       files: [file],
     });
-    const urlOfUpload = `
-      https://${process.env.NEXT_PUBLIC_THIRD_WEB_CLIENT}.ipfscdn.io/ipfs/${(uri as string).split("//")[1]}`;
+    const urlOfUpload = `https://${process.env.NEXT_PUBLIC_THIRD_WEB_CLIENT}.ipfscdn.io/ipfs/${
+      (uri as string).split("//")[1]
+    }`;
     return urlOfUpload;
   } catch (err) {
     onError && onError(`Error uploading ${file.path}`);

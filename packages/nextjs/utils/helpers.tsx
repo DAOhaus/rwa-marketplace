@@ -129,3 +129,19 @@ export const stringToJsonSafe = (e: any) => {
   }
   return returnJson;
 };
+
+export const ipfsToJsonSafe = async (url: any) => {
+  try {
+    async function getData() {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+      return await response.json();
+    }
+    await getData();
+  } catch (error) {
+    console.log("error converting ipfs url to json");
+    console.error(error);
+  }
+};

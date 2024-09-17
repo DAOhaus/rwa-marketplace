@@ -71,13 +71,9 @@ function NFT() {
   };
 
   useEffect(() => {
-    console.log("effect:", data, tokenURI, id, NftId);
-    console.log("id:", id, NftId);
-    console.log("index:", index, address);
     if (!data && tokenURI) {
-      // check tokenURI if it is a string that can be decoded into an object
-      // if not then request
-      // logic is repeated in NftDataDisplay - consolidate
+      // check tokenURI if it is a string that can be decoded into an object, if not then request
+      // TODO: logic is repeated in NftDataDisplay - consolidate
       let encodedBlockchainData;
       try {
         encodedBlockchainData = JSON.parse(tokenURI);

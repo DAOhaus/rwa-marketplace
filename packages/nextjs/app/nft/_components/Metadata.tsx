@@ -41,13 +41,13 @@ interface Props {
 const Metadata: FC<Props> = ({ tokenId, json }) => {
   const jsonElement = useRef<HTMLInputElement>(null);
   const [advanced, setAdvanced] = useState<boolean>();
-  const [isMining, setIsMining] = useState<boolean>();
+  const [isMining] = useState<boolean>();
   const [jsonEdit, setJsonEdit] = useState<boolean>();
-  const [jsonMsg, setJsonMsg] = useState<string>();
+  const [jsonMsg] = useState<string>();
   const [jsonError, setJsonError] = useState<string>();
   const [jsonData, setJsonData] = useState<any>(json);
 
-  console.log("console data so no errors", tokenId, setIsMining, setJsonMsg);
+  console.log("console data so no errors", tokenId);
 
   // const { writeContractAsync: writeTokenURI } = useScaffoldWriteContract("NFTFactory");
 

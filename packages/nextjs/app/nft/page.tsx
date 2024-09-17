@@ -17,7 +17,7 @@ import { useWindowSize } from "~~/utils/windowSize";
 /* eslint-disable @next/next/no-img-element */
 function NFT() {
   const searchParams = useSearchParams();
-  const index = searchParams.get("index") || 0;
+  const index = searchParams.get("index");
   const id = searchParams.get("id");
   const _chainId = searchParams.get("chainId");
   const chainId = _chainId ? Number(_chainId) : undefined;
@@ -44,24 +44,16 @@ function NFT() {
     functionName: "getTokensByAddress",
     args: [address],
   });
-  // const tokensByAddress =
-  //   useScaffoldContractRead({
-  //     contractName: "NFTFactory",
-  //     functionName: "tokensByAddress",
-  //     args: [address, index],
-  //     ...overrideParameters,
-  //   }).data || [];
 
   // todo: not getting the index / id think correctly, can only lookup by id
-  const rawId = tokensByAddress[Number(index)] || id || "";
+  const NftId = Number(id) || BigInt(tokensByAddress[Number(index)]).toString() || "";
 
   const { data: tokenURI } = useScaffoldReadContract({
     contractName: "NFTFactory",
     functionName: "tokenURI",
-    args: [BigInt(rawId)],
+    args: [BigInt(NftId)],
     ...overrideParameters,
   });
-  console.log("rawId:", rawId, tokenURI);
 
   const getData = async (url: string) => {
     const response = await axios.get(url).catch(error => {
@@ -79,8 +71,8 @@ function NFT() {
   };
 
   useEffect(() => {
-    console.log("effect:", data, tokenURI, id, rawId);
-    console.log("id:", id, rawId);
+    console.log("effect:", data, tokenURI, id, NftId);
+    console.log("id:", id, NftId);
     console.log("index:", index, address);
     if (!data && tokenURI) {
       // check tokenURI if it is a string that can be decoded into an object
@@ -97,7 +89,7 @@ function NFT() {
           .catch((error): any => {
             setLoading(false);
             console.log(error);
-            setError(`Invalid JSON returned for token #${Number(rawId)}:${tokenURI}.`);
+            setError(`Invalid JSON returned for token #${NftId}:${tokenURI}.`);
           })
           .then(response => {
             setData(response);
@@ -105,7 +97,7 @@ function NFT() {
           });
       }
     }
-  }, [data, tokenURI, rawId, id, index, address]);
+  }, [data, tokenURI, NftId, id, index, address]);
 
   if (isLoading || error)
     return <LoadingView error={error || (isLoading || chainId ? "" : "You may need to connect your wallet to view")} />;
@@ -137,7 +129,7 @@ function NFT() {
             }}
             width="300"
           />
-          <span className="indicator-item badge badge-secondary">#{Number(rawId)}</span>
+          <span className="indicator-item badge badge-secondary">#{NftId}</span>
         </div>
       )}
 
@@ -150,7 +142,7 @@ function NFT() {
       >
         <NFTDetails
           metadata={data}
-          id={BigInt(rawId).toString()}
+          id={NftId}
           chainId={chainId}
           isSmallScreen={isSmallScreen}
           sideAlign={isLargeScreen}

@@ -33,7 +33,7 @@ export const art: Nft = {
   image: "",
   name: "",
   attributes: [
-    { trait_type: "cateogry", value: "art", hideInList: true },
+    { trait_type: "category", value: "art", hideInList: true },
     { trait_type: "title", value: "", placeholder: "Man in Hat", required: true },
     { trait_type: "artist", value: "", placeholder: "Davinci", required: true },
     { trait_type: "year", inputType: "number", value: "", placeholder: "1999", required: true },
@@ -46,7 +46,7 @@ export const realEstate: Nft = {
   image: "",
   name: "",
   attributes: [
-    { trait_type: "cateogry", value: "real estate", hideInList: true },
+    { trait_type: "category", value: "realEstate", hideInList: true },
     { trait_type: "address", value: "", required: true },
     { trait_type: "property type", value: "", required: true },
     { trait_type: "square footage", value: "", required: true },
@@ -60,7 +60,7 @@ export const vehicle: Nft = {
   image: "",
   name: "",
   attributes: [
-    { trait_type: "cateogry", value: "vehicle", hideInList: true },
+    { trait_type: "category", value: "vehicle", hideInList: true },
     { trait_type: "model", value: "", placeholder: "G Wagon", required: true },
     { trait_type: "make", value: "", placeholder: "Mercedes", required: true },
     { trait_type: "year", value: "", inputType: "number", placeholder: "2020", required: true },

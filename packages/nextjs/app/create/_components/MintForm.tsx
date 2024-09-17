@@ -7,7 +7,7 @@ import { parseEther } from "viem";
 import { useAccount } from "wagmi";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { Alert, Button, Text } from "~~/components";
-// import { Address } from "~~/components/scaffold-eth";
+import { Address } from "~~/components/scaffold-eth";
 import { useScaffoldEventHistory, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { singleUpload } from "~~/services/ipfs";
 import chainData from "~~/utils/chainData";
@@ -28,8 +28,8 @@ export const MintForm = ({ state }: { state: State }) => {
 
   const router = useRouter();
   const [mintData, setMintData] = useState<any>({});
-  const [isKyc, setIsKyc] = useState<boolean>(false);
-  const [toIpfs, setToIpfs] = useState<boolean>(false);
+  // const [isKyc, setIsKyc] = useState<boolean>(false);
+  const [toIpfs] = useState<boolean>(false);
   const { address } = useAccount();
   const [error, setError] = useState("");
   const [loadingStates, setLoadingStates] = useState<{ token?: boolean; nft?: boolean; amm?: boolean }>({});
@@ -99,7 +99,6 @@ export const MintForm = ({ state }: { state: State }) => {
       setLoadingStates({});
     }
     setLoadingStates({});
-    // setStage(stage.length);
   };
 
   const canMint =
@@ -130,10 +129,6 @@ export const MintForm = ({ state }: { state: State }) => {
 
   return (
     <Stack pl={2} pr={4} gap={4}>
-      <Text tiny>
-        When you press mint below you will be creating both an NFT and a ERC20 Token in order to be used in Defi and
-        collective ownership and management of the underlying asset. Enjoy responsibly :)
-      </Text>
       <div>
         <Text size={"xl"} display={"block"} bold>
           NFT
@@ -169,7 +164,7 @@ export const MintForm = ({ state }: { state: State }) => {
           <br></br>
         </Code>
       </div>
-      <div className="flex items-center space-2">
+      {/* <div className="flex items-center space-2">
         <input
           type="checkbox"
           defaultChecked
@@ -188,7 +183,15 @@ export const MintForm = ({ state }: { state: State }) => {
           onChange={() => setToIpfs(!toIpfs)}
         />{" "}
         Upload to IPFS
-      </div>
+      </div> */}
+      {!canMint && !mintData.blockNumber ? (
+        <Alert type="warning" message={"Insufficient data for mint." + inputsMissingMessage()} />
+      ) : (
+        <Text tiny>
+          When you press mint below you will be creating both an NFT and a ERC20 Token that represents the underlying
+          asset. Enjoy responsibly fren :)
+        </Text>
+      )}
       {canMint && (
         <>
           <div className="flex flex-col items-center mt-2 space-x-2">
@@ -205,14 +208,11 @@ export const MintForm = ({ state }: { state: State }) => {
           </div>
         </>
       )}
-      {!loadingStates.nft && mintData.blockNumber && (
+      {!loadingStates.nft && mintData.blockNumber && events[0]?.args?.tokenAddress && (
         <div className="flex mt-2">
           🥳 ERC20 adress:&nbsp;&nbsp;
-          {/* TODO: <Address address={events[0].args.tokenAddress} disableAddressLink={true} format="short" size="sm" /> */}
+          <Address address={events[0]?.args?.tokenAddress} disableAddressLink={true} format="short" size="sm" />
         </div>
-      )}
-      {!canMint && !mintData.blockNumber && (
-        <Alert type="warning" message={"Insufficient data for mint." + inputsMissingMessage()} />
       )}
 
       {error && <Alert type="error" message={error.toString ? error.toString() : error} />}
@@ -232,7 +232,7 @@ export const MintForm = ({ state }: { state: State }) => {
             colorScheme={"teal"}
             isDisabled={!mintData.blockNumber}
             onClick={() => {
-              router.push(`/nft?id=${events[0].args.nftId}`);
+              router.push(`/nft?id=${BigInt(events[0].args.nftId as bigint).toString()}`);
             }}
           >
             <Flex width={"full"} justifyContent={"space-between"} alignItems={"center"}>

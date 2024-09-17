@@ -65,7 +65,6 @@ export default function Page() {
     async (acceptedFiles: File[]) => {
       const file = acceptedFiles[0];
       const returnedImageUrl = await singleUpload(file, file.name);
-      console.log("url after upload", returnedImageUrl);
       setAsset({ ...asset, image: returnedImageUrl });
     },
     [asset],
@@ -80,13 +79,9 @@ export default function Page() {
   };
 
   const handleInputChange = (e: { target: { value: any } }) => {
-    console.log("e", e, e.target.value);
     setAsset({ ...asset, image: e.target.value });
   };
 
-  console.log("asset image", asset.image);
-
-  // RENDER
   return (
     <Grid w={"100vw"} h={"full"} templateColumns="repeat(2, 1fr)" gap={0}>
       <Box w={"full"} h={"full"} pos="relative" overflow={"hidden scroll"}>

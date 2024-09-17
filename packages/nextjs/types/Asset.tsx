@@ -13,74 +13,60 @@ export interface Nft {
   image: string;
   attributes: Attribute[];
 }
-export interface Asset {
-  nft: Nft;
-  category: string;
-  id: bigint;
-  receipt: any;
-}
 
 interface AssetTypes {
-  vehicle: Asset;
-  art: Asset;
-  realEstate: Asset;
-  [key: string]: Asset;
+  vehicle: Nft;
+  art: Nft;
+  realEstate: Nft;
+  [key: string]: Nft;
 }
 
-export const art: Asset = {
-  nft: {
-    description: "",
-    image: "",
-    name: "",
-    attributes: [
-      { trait_type: "cateogry", value: "art", hideInList: true },
-      { trait_type: "title", value: "", placeholder: "Man in Hat", required: true },
-      { trait_type: "artist", value: "", placeholder: "Davinci", required: true },
-      { trait_type: "year", inputType: "number", value: "", placeholder: "1999", required: true },
-      { trait_type: "medium", value: "" },
-      { trait_type: "dimensions", value: "" },
-    ],
-  },
-  category: "art",
-  id: BigInt(0),
-  receipt: {},
+export const blank: Nft = {
+  description: "",
+  image: "",
+  name: "",
+  attributes: [],
 };
-export const realEstate: Asset = {
-  nft: {
-    description: "",
-    image: "",
-    name: "",
-    attributes: [
-      { trait_type: "cateogry", value: "real estate", hideInList: true },
-      { trait_type: "address", value: "", required: true },
-      { trait_type: "property type", value: "", required: true },
-      { trait_type: "square footage", value: "", required: true },
-      { trait_type: "year built", value: "" },
-      { trait_type: "bedrooms", value: "" },
-      { trait_type: "bathrooms", value: "" },
-    ],
-  },
-  category: "realEstate", //TOANSWER: are these keys for after an NFT is minted or what is the purpose?
-  id: BigInt(0),
-  receipt: {},
+
+export const art: Nft = {
+  description: "",
+  image: "",
+  name: "",
+  attributes: [
+    { trait_type: "cateogry", value: "art", hideInList: true },
+    { trait_type: "title", value: "", placeholder: "Man in Hat", required: true },
+    { trait_type: "artist", value: "", placeholder: "Davinci", required: true },
+    { trait_type: "year", inputType: "number", value: "", placeholder: "1999", required: true },
+    { trait_type: "medium", value: "" },
+    { trait_type: "dimensions", value: "" },
+  ],
 };
-export const vehicle: Asset = {
-  nft: {
-    description: "",
-    image: "",
-    name: "",
-    attributes: [
-      { trait_type: "cateogry", value: "vehicle", hideInList: true },
-      { trait_type: "model", value: "", placeholder: "G Wagon", required: true },
-      { trait_type: "make", value: "", placeholder: "Mercedes", required: true },
-      { trait_type: "year", value: "", inputType: "number", placeholder: "2020", required: true },
-      { trait_type: "color", value: "", placeholder: "White" },
-      { trait_type: "mileage", value: "", inputType: "number", placeholder: "100000" },
-    ],
-  },
-  category: "vehicle",
-  id: BigInt(0),
-  receipt: {},
+export const realEstate: Nft = {
+  description: "",
+  image: "",
+  name: "",
+  attributes: [
+    { trait_type: "cateogry", value: "real estate", hideInList: true },
+    { trait_type: "address", value: "", required: true },
+    { trait_type: "property type", value: "", required: true },
+    { trait_type: "square footage", value: "", required: true },
+    { trait_type: "year built", value: "" },
+    { trait_type: "bedrooms", value: "" },
+    { trait_type: "bathrooms", value: "" },
+  ],
+};
+export const vehicle: Nft = {
+  description: "",
+  image: "",
+  name: "",
+  attributes: [
+    { trait_type: "cateogry", value: "vehicle", hideInList: true },
+    { trait_type: "model", value: "", placeholder: "G Wagon", required: true },
+    { trait_type: "make", value: "", placeholder: "Mercedes", required: true },
+    { trait_type: "year", value: "", inputType: "number", placeholder: "2020", required: true },
+    { trait_type: "color", value: "", placeholder: "White" },
+    { trait_type: "mileage", value: "", inputType: "number", placeholder: "100000" },
+  ],
 };
 
 export const sanitizeNftAttributes = (nft: Nft) => {
@@ -90,6 +76,6 @@ export const sanitizeNftAttributes = (nft: Nft) => {
   };
 };
 
-const assetTypes: AssetTypes = { vehicle, art, realEstate };
+const assetTypes: AssetTypes = { vehicle, art, realEstate, blank };
 
 export default assetTypes;

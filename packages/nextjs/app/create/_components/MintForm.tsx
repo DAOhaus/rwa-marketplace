@@ -11,7 +11,7 @@ import { Alert, Button, Text } from "~~/components";
 import { useScaffoldEventHistory, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { singleUpload } from "~~/services/ipfs";
 import chainData from "~~/utils/chainData";
-import { createAttribute, jsonToStringSafe } from "~~/utils/helpers";
+import { jsonToStringSafe } from "~~/utils/helpers";
 
 export const MintForm = ({ state }: { state: State }) => {
   const {
@@ -67,11 +67,7 @@ export const MintForm = ({ state }: { state: State }) => {
     setError("");
     setLoadingStates({ nft: true });
     try {
-      const rawNftData = {
-        ...asset.nft,
-        attributes: [...asset.nft.attributes, createAttribute("category", asset.category)],
-      };
-      const preparedNft = sanitizeNftAttributes(rawNftData);
+      const preparedNft = sanitizeNftAttributes(asset);
       let tokenUri = jsonToStringSafe(preparedNft);
       if (toIpfs) {
         tokenUri = await singleUpload(new File([tokenUri || ""], "metadata.json"));
@@ -110,17 +106,17 @@ export const MintForm = ({ state }: { state: State }) => {
     erc20Data.name &&
     erc20Data.symbol &&
     erc20Data.supply &&
-    asset.nft.name &&
-    asset.nft.description &&
-    asset.nft.image &&
+    asset.name &&
+    asset.description &&
+    asset.image &&
     !mintData.blockNumber;
 
   const inputsMissingMessage = () => {
     let mes = " \nInputs missing: ";
-    mes = asset.nft.name ? mes : mes + "asset name, ";
-    mes = asset.nft.description ? mes : mes + "asset description, ";
-    mes = asset.nft.image ? mes : mes + "asset image, ";
-    asset.nft.attributes.map(
+    mes = asset.name ? mes : mes + "asset name, ";
+    mes = asset.description ? mes : mes + "asset description, ";
+    mes = asset.image ? mes : mes + "asset image, ";
+    asset.attributes.map(
       (attr: any) => (mes = attr.required ? (attr.value ? mes : mes + `${attr.trait_type}, `) : mes),
     );
 
@@ -143,16 +139,16 @@ export const MintForm = ({ state }: { state: State }) => {
           NFT
         </Text>
         <Code p={3} w={"100%"}>
-          <span className="font-bold">name</span>: {asset.nft.name}
+          <span className="font-bold">name</span>: {asset.name}
           <br></br>
           <span className="line-clamp-3">
-            <span className="font-bold">description</span>: {asset.nft.description}
+            <span className="font-bold">description</span>: {asset.description}
           </span>
-          <span className="font-bold">image:</span> {asset.nft.image}
+          <span className="font-bold">image:</span> {asset.image}
           <br></br>
           <span className="font-bold">attributes</span>:
           <Box pl={4}>
-            {sanitizeNftAttributes(asset.nft).attributes.map((attr: any, i: any) => (
+            {sanitizeNftAttributes(asset).attributes.map((attr: any, i: any) => (
               <Text display={"block"} key={i}>
                 <span className="font-bold">{attr.trait_type}</span>: {attr.value}
               </Text>

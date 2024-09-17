@@ -5,7 +5,7 @@
 // TODO: fix prettier putting in spaces that eslint is throwing errors on
 import { createRef, useCallback, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Asset, vehicle } from "../../types/Asset";
+import { Nft, blank } from "../../types/Asset";
 import { DescribeForm } from "./_components/DescribeForm";
 import { MintForm } from "./_components/MintForm";
 import { TokenizeForm } from "./_components/TokenizeForm";
@@ -31,8 +31,8 @@ export interface Erc20Data {
 export interface State {
   stage: number;
   setStage: (arg0: number) => void;
-  asset: Asset;
-  setAsset: (arg0: Asset) => void;
+  asset: Nft;
+  setAsset: (arg0: Nft) => void;
   erc20Data: Erc20Data;
   setErc20Data: (arg0: Erc20Data) => void;
 }
@@ -41,7 +41,7 @@ export default function Page() {
   const searchParams = useSearchParams();
   //@ts-expect-error
   const defaultStage = Stage[searchParams.get("step") || "describe"];
-  const [asset, setAsset] = useState<any>(vehicle);
+  const [asset, setAsset] = useState<Nft>(blank);
   const [stage, setStage] = useState<number>(defaultStage);
   // change the initial erc20Data
   const [erc20Data, setErc20Data] = useState<Erc20Data>({
@@ -66,7 +66,7 @@ export default function Page() {
       const file = acceptedFiles[0];
       const returnedImageUrl = await singleUpload(file, file.name);
       console.log("url after upload", returnedImageUrl);
-      setAsset({ ...asset, nft: { ...asset.nft, image: returnedImageUrl } });
+      setAsset({ ...asset, image: returnedImageUrl });
     },
     [asset],
   );
@@ -81,10 +81,10 @@ export default function Page() {
 
   const handleInputChange = (e: { target: { value: any } }) => {
     console.log("e", e, e.target.value);
-    setAsset({ ...asset, nft: { ...asset.nft, image: e.target.value } });
+    setAsset({ ...asset, image: e.target.value });
   };
 
-  console.log("asset image", asset.nft.image);
+  console.log("asset image", asset.image);
 
   // RENDER
   return (
@@ -129,7 +129,7 @@ export default function Page() {
           className="w-full min-h-96 bg-neutral flex justify-center items-center rounded-lg"
         >
           <Box
-            backgroundImage={asset.nft.image || ""}
+            backgroundImage={asset.image || ""}
             backgroundRepeat={"no-repeat"}
             backgroundSize={"contain"}
             backgroundPosition={"center"}
@@ -138,7 +138,7 @@ export default function Page() {
             justifyContent={"center"}
             className={"w-full h-full " + (asset.image ? "auto" : "cursor-pointer")}
           >
-            {!asset.nft.image && (
+            {!asset.image && (
               <div className="flex flex-col justify-center ">
                 <PhotoIcon className="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" />
                 Upload Image
@@ -151,7 +151,7 @@ export default function Page() {
           <Input
             name="NFT Image Url"
             placeholder="https://ipfs.io/pathToImage.jpg"
-            value={asset.nft.image}
+            value={asset.image}
             onChange={handleInputChange}
           />
         </div>

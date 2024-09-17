@@ -14,11 +14,11 @@ export const DescribeForm = ({ state }: { state: State }) => {
   const error = ""; //const [error, setError] = useState("");
   // const [dimoAddress, setDimoAddress] = useState("");
   // const [pdfUploading, setPdfUploading] = useState<boolean>(false);
-  // const pdfAttribute = getAttribute(chainData.linkedPdfKey, asset.nft.attributes);
+  // const pdfAttribute = getAttribute(chainData.linkedPdfKey, asset.attributes);
 
   const canProceed = () => {
-    let can = asset.nft.name && asset.nft.description;
-    asset.nft.attributes.map((attr: any) => (can = can && (attr.required ? attr.value : true)));
+    let can = asset.name && asset.description;
+    asset.attributes.map((attr: any) => (can = can && (attr.required ? attr.value : true)));
     return can;
   };
 
@@ -27,10 +27,7 @@ export const DescribeForm = ({ state }: { state: State }) => {
     const key = e.target.name;
     const newAsset = {
       ...asset,
-      nft: {
-        ...asset.nft,
-        attributes: updateAttributes(asset.nft.attributes, key, value),
-      },
+      attributes: updateAttributes(asset.attributes, key, value),
     };
     setAsset(newAsset);
   };
@@ -47,10 +44,10 @@ export const DescribeForm = ({ state }: { state: State }) => {
   //   const pdfHash = "0xNeedsToReplaceThis";
   //   console.log("pdfHash:", pdfHash);
   //   const pdfAddition = createAttribute(chainData.linkedPdfKey, chainData.baseIPFSUrl + pdfHash);
-  //   const cleanedAttributes = cleanAttributes(asset.nft.attributes, chainData.linkedPdfKey);
+  //   const cleanedAttributes = cleanAttributes(asset.attributes, chainData.linkedPdfKey);
   //   setAsset({   // TODO
   //     ...asset,
-  //     nft: {...asset.nft, attributes: [...cleanedAttributes, pdfAddition]}
+  //     nft: {...asset, attributes: [...cleanedAttributes, pdfAddition]}
   //   });
   //   setError("");
   //   setPdfUploading(false);
@@ -104,16 +101,16 @@ export const DescribeForm = ({ state }: { state: State }) => {
         <Input
           label="NFT Name"
           name="name"
-          defaultValue={asset.nft.name}
-          onChange={e => setAsset({ ...asset, nft: { ...asset.nft, name: e.target.value } })}
+          defaultValue={asset.name}
+          onChange={e => setAsset({ ...asset, name: e.target.value })}
           placeholder="NFT Name"
         />
         <Input
           label="NFT Description"
           name="description"
           textarea
-          defaultValue={asset.nft.description}
-          onChange={e => setAsset({ ...asset, nft: { ...asset.nft, description: e.target.value } })}
+          defaultValue={asset.description}
+          onChange={e => setAsset({ ...asset, description: e.target.value })}
           placeholder="This token represents my physical asset located at..."
         />
         <Input
@@ -126,7 +123,7 @@ export const DescribeForm = ({ state }: { state: State }) => {
                   setAsset(AssetTypes[newCategory]);
                 }
               }}
-              value={asset.category}
+              value={getAttribute("category", asset.attributes)?.value || ""}
               className="placeholder:"
             >
               <option value="vehicle">Vehicle</option>
@@ -137,7 +134,7 @@ export const DescribeForm = ({ state }: { state: State }) => {
         />
         <Box>
           <Input
-            value={getAttribute(chainData.linkedPdfKey, asset.nft.attributes)?.value || ""}
+            value={getAttribute(chainData.linkedPdfKey, asset.attributes)?.value || ""}
             name={chainData.linkedPdfKey}
             label="Linked Document"
             placeholder={"https://website.com/document.pdf"}
@@ -202,10 +199,10 @@ export const DescribeForm = ({ state }: { state: State }) => {
                             setAsset({
                               ...asset,
                               nft: {
-                                ...asset.nft,
+                                ...asset,
                                 attributes: updateAttributes(
                                   updateAttributes(
-                                    updateAttributes(asset.nft.attributes, "model", dimoAttributes["model"]),
+                                    updateAttributes(asset.attributes, "model", dimoAttributes["model"]),
                                     "make",
                                     dimoAttributes["make"],
                                   ),
@@ -238,7 +235,7 @@ export const DescribeForm = ({ state }: { state: State }) => {
         ) : (
           <></>
         )} */}
-        {cleanAttributes(asset.nft.attributes, chainData.linkedPdfKey).map((attr: any) =>
+        {cleanAttributes(asset.attributes, chainData.linkedPdfKey).map((attr: any) =>
           attr.hideInList ? null : (
             <Input
               key={attr.trait_type}

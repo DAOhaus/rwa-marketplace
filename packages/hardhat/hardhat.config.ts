@@ -50,7 +50,7 @@ const config: HardhatUserConfig = {
     },
     kinto: {
       url: "https://kinto-mainnet.calderachain.xyz/http",
-      accounts: [process.env.KINTO_DEPLOYER_PRIVATE_KEY as string],
+      accounts: [process.env.KINTO_DEPLOYER_PRIVATE_KEY || deployerPrivateKey],
       gas: 12000000,
       allowUnlimitedContractSize: true,
       blockGasLimit: 0x1fffffffffffff,

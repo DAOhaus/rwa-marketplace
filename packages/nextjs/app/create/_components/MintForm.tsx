@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { sanitizeNft } from "../../../types/Asset";
+import { sanitizeNftAttributes } from "../../../types/Asset";
 import { Erc20Data, State } from "../page";
 import { Box, Code, Flex, HStack, Stack } from "@chakra-ui/react";
 import { parseEther } from "viem";
 import { useAccount } from "wagmi";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { Alert, Button, Text } from "~~/components";
-// import { Address } from "~~/components/scaffold-eth";
+import { Address } from "~~/components/scaffold-eth";
 import { useScaffoldEventHistory, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { singleUpload } from "~~/services/ipfs";
 import chainData from "~~/utils/chainData";
@@ -28,8 +28,8 @@ export const MintForm = ({ state }: { state: State }) => {
 
   const router = useRouter();
   const [mintData, setMintData] = useState<any>({});
-  const [isKyc, setIsKyc] = useState<boolean>(false);
-  const [toIpfs, setToIpfs] = useState<boolean>(false);
+  // const [isKyc, setIsKyc] = useState<boolean>(false);
+  const [toIpfs] = useState<boolean>(false);
   const { address } = useAccount();
   const [error, setError] = useState("");
   const [loadingStates, setLoadingStates] = useState<{ token?: boolean; nft?: boolean; amm?: boolean }>({});
@@ -67,26 +67,17 @@ export const MintForm = ({ state }: { state: State }) => {
     setError("");
     setLoadingStates({ nft: true });
     try {
-      const rawNftData = {
-        ...asset.nft,
-        attributes: [
-          ...asset.nft.attributes,
-          { trait_type: "category", value: asset.category, placeholder: "", required: false },
-        ],
-      };
-      const preparedNft = sanitizeNft(rawNftData);
-      const nftDataString = jsonToStringSafe(preparedNft);
-      let ipfsUrl = "";
+      const preparedNft = sanitizeNftAttributes(asset);
+      let tokenUri = jsonToStringSafe(preparedNft);
       if (toIpfs) {
-        ipfsUrl = await singleUpload(new File([nftDataString || ""], "metadata.json"));
+        tokenUri = await singleUpload(new File([tokenUri || ""], "metadata.json"));
       }
-      console.log("metadata url: ", ipfsUrl);
       await mintNft(
         {
           functionName: "mint",
           args: [
             address,
-            toIpfs ? ipfsUrl : nftDataString,
+            tokenUri,
             chainData.emptyAddress,
             [],
             erc20Data.name,
@@ -108,24 +99,23 @@ export const MintForm = ({ state }: { state: State }) => {
       setLoadingStates({});
     }
     setLoadingStates({});
-    // setStage(stage.length);
   };
 
   const canMint =
     erc20Data.name &&
     erc20Data.symbol &&
     erc20Data.supply &&
-    asset.nft.name &&
-    asset.nft.description &&
-    asset.nft.image &&
+    asset.name &&
+    asset.description &&
+    asset.image &&
     !mintData.blockNumber;
 
   const inputsMissingMessage = () => {
     let mes = " \nInputs missing: ";
-    mes = asset.nft.name ? mes : mes + "asset name, ";
-    mes = asset.nft.description ? mes : mes + "asset description, ";
-    mes = asset.nft.image ? mes : mes + "asset image, ";
-    asset.nft.attributes.map(
+    mes = asset.name ? mes : mes + "asset name, ";
+    mes = asset.description ? mes : mes + "asset description, ";
+    mes = asset.image ? mes : mes + "asset image, ";
+    asset.attributes.map(
       (attr: any) => (mes = attr.required ? (attr.value ? mes : mes + `${attr.trait_type}, `) : mes),
     );
 
@@ -139,37 +129,25 @@ export const MintForm = ({ state }: { state: State }) => {
 
   return (
     <Stack pl={2} pr={4} gap={4}>
-      <Text tiny>
-        When you press mint below you will be creating both an NFT and a ERC20 Token in order to be used in Defi and
-        collective ownership and management of the underlying asset. Enjoy responsibly :)
-      </Text>
       <div>
         <Text size={"xl"} display={"block"} bold>
           NFT
         </Text>
         <Code p={3} w={"100%"}>
-          <span className="font-bold">name</span>: {asset.nft.name}
+          <span className="font-bold">name</span>: {asset.name}
           <br></br>
           <span className="line-clamp-3">
-            <span className="font-bold">description</span>: {asset.nft.description}
+            <span className="font-bold">description</span>: {asset.description}
           </span>
-          <span className="font-bold">image:</span> {asset.nft.image}
+          <span className="font-bold">image:</span> {asset.image}
           <br></br>
           <span className="font-bold">attributes</span>:
           <Box pl={4}>
-            {asset.nft.attributes.map((attr: any, i: any) => {
-              return attr.required ? (
-                <Text display={"block"} key={i}>
-                  <span className="font-bold">{attr.trait_type}</span>: {attr.value}
-                </Text>
-              ) : (
-                attr.value && (
-                  <Text display={"block"} key={i}>
-                    <span className="font-bold">{attr.trait_type}</span>: {attr.value}
-                  </Text>
-                )
-              );
-            })}
+            {sanitizeNftAttributes(asset).attributes.map((attr: any, i: any) => (
+              <Text display={"block"} key={i}>
+                <span className="font-bold">{attr.trait_type}</span>: {attr.value}
+              </Text>
+            ))}
           </Box>
         </Code>
       </div>
@@ -186,7 +164,7 @@ export const MintForm = ({ state }: { state: State }) => {
           <br></br>
         </Code>
       </div>
-      <div className="flex items-center space-2">
+      {/* <div className="flex items-center space-2">
         <input
           type="checkbox"
           defaultChecked
@@ -205,7 +183,15 @@ export const MintForm = ({ state }: { state: State }) => {
           onChange={() => setToIpfs(!toIpfs)}
         />{" "}
         Upload to IPFS
-      </div>
+      </div> */}
+      {!canMint && !mintData.blockNumber ? (
+        <Alert type="warning" message={"Insufficient data for mint." + inputsMissingMessage()} />
+      ) : (
+        <Text tiny>
+          When you press mint below you will be creating both an NFT and a ERC20 Token that represents the underlying
+          asset. Enjoy responsibly fren :)
+        </Text>
+      )}
       {canMint && (
         <>
           <div className="flex flex-col items-center mt-2 space-x-2">
@@ -222,14 +208,11 @@ export const MintForm = ({ state }: { state: State }) => {
           </div>
         </>
       )}
-      {!loadingStates.nft && mintData.blockNumber && (
+      {!loadingStates.nft && mintData.blockNumber && events[0]?.args?.tokenAddress && (
         <div className="flex mt-2">
           🥳 ERC20 adress:&nbsp;&nbsp;
-          {/* TODO: <Address address={events[0].args.tokenAddress} disableAddressLink={true} format="short" size="sm" /> */}
+          <Address address={events[0]?.args?.tokenAddress} disableAddressLink={true} format="short" size="sm" />
         </div>
-      )}
-      {!canMint && !mintData.blockNumber && (
-        <Alert type="warning" message={"Insufficient data for mint." + inputsMissingMessage()} />
       )}
 
       {error && <Alert type="error" message={error.toString ? error.toString() : error} />}
@@ -249,7 +232,7 @@ export const MintForm = ({ state }: { state: State }) => {
             colorScheme={"teal"}
             isDisabled={!mintData.blockNumber}
             onClick={() => {
-              router.push(`/nft?id=${events[0].args.nftId}`);
+              router.push(`/nft?id=${BigInt(events[0].args.nftId as bigint).toString()}`);
             }}
           >
             <Flex width={"full"} justifyContent={"space-between"} alignItems={"center"}>

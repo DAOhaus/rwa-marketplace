@@ -53,7 +53,7 @@ const CustomCard: React.FC<CardProps & { compact?: boolean }> = ({
         {children}
         <div className="flex flex-col justify-between">
           {footer && compact ? (
-            <div className="card-actions justify-end">{footer}</div>
+            <div className="card-actions justify-end mt-4">{footer}</div>
           ) : (
             <div className="card-actions justify-end">
               <div className="divider w-full"></div>

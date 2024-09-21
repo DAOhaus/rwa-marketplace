@@ -32,7 +32,15 @@ const ImageWrapper = styled.div`
   }
 `;
 
-const CustomCard: React.FC<CardProps> = ({ className, children, title, footer, align = "left", imageUrl }) => {
+const CustomCard: React.FC<CardProps & { compact?: boolean }> = ({
+  className,
+  children,
+  title,
+  footer,
+  align = "left",
+  imageUrl,
+  compact = false,
+}) => {
   return (
     <StyledCard className={`${className + " card bg-neutral text-neutral-content rounded-lg overflow-hidden"}`}>
       {imageUrl && (
@@ -40,11 +48,13 @@ const CustomCard: React.FC<CardProps> = ({ className, children, title, footer, a
           <Image src={imageUrl} alt={"nft display"} />
         </ImageWrapper>
       )}
-      <div className={`card-body items-${align} flex flex-col justify-between`}>
+      <div className={`card-body ${compact ? "p-5" : ""} items-${align} flex flex-col justify-between`}>
         {title && <h1 className="card-title">{title}</h1>}
         {children}
         <div className="flex flex-col justify-between">
-          {footer && (
+          {footer && compact ? (
+            <div className="card-actions justify-end">{footer}</div>
+          ) : (
             <div className="card-actions justify-end">
               <div className="divider w-full"></div>
               {footer}

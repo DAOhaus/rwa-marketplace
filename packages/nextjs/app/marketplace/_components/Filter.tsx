@@ -34,7 +34,11 @@ export const Filter = () => {
   };
 
   return (
-    <button onClick={handleClick} className="w-28 h-10 btn btn-sm btn-primary" type="submit">
+    <button
+      onClick={handleClick}
+      className="border-2 border-neutral w-24 h-10 btn btn-sm btn-primary hover:border-accent"
+      type="submit"
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"

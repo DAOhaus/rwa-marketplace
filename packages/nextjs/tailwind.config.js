@@ -7,8 +7,10 @@ const colors = {
   lightestGrey: "#f7f7f7",
   white: "#ffffff",
   neonGreen: "#84CC16",
+  green: "#84CC16"
 };
 module.exports = {
+  colors: colors,
   content: ["./app/**/*.{js,ts,jsx,tsx}", "./components/**/*.{js,ts,jsx,tsx}", "./utils/**/*.{js,ts,jsx,tsx}"],
   plugins: [require("daisyui")],
   darkTheme: "dark",
@@ -21,7 +23,7 @@ module.exports = {
           primary: "#93BBFB",
           secondary: "#DAE8FF",
           neutral: colors.lightestGrey,
-          accent: "#93BBFB",
+          accent: colors.green,
           "base-100": colors.white,
           //   "primary-content": "#212638",
           // "secondary-content": "#212638",

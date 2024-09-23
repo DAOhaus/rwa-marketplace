@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-// import { SearchBar } from "./_components/SearchBar";
+import Featured from "./_components/Featured";
+import { SearchBar } from "./_components/SearchBar";
 import { Grid, GridItem, Text } from "@chakra-ui/react";
 // import { Flex } from "@chakra-ui/react";
 import { useAccount } from "wagmi";
@@ -13,6 +14,9 @@ const MarketplacePage: React.FC = () => {
   const { address } = useAccount();
   const [tokenIds, setTokenIds] = useState<bigint[]>([]);
   const [lastFetchedAddress, setLastFetchedAddress] = useState<string | undefined>(undefined);
+  const [searchTerm, setSearchTerm] = useState("");
+  // const [cards, setCards] = useState<any>();
+  // const [filters, setFilters] = useState([]);
 
   const { data: fetchedTokenIds, refetch } = useScaffoldReadContract({
     contractName: "NFTFactory",
@@ -34,36 +38,67 @@ const MarketplacePage: React.FC = () => {
     fetchTokenIds();
   }, [address, lastFetchedAddress, tokenIds.length, refetch, fetchedTokenIds]);
 
-  console.log("!ownedTokenIds:", address, tokenIds);
+  // useEffect(() => {
+  //   const cards_ = tokenIds?.map(id => id>11&&(
+  //     <GridItem key={id} colSpan={{ base: 6, md: 3, lg: 2 }}>
+  //       <NFTMarketplaceCard id={id} nftData={getNftData({id:id, searchTerm:searchTerm}).nftData} />
+  //     </GridItem>
+  //   ))
+  //   setCards(cards_);
+  // }, [tokenIds, searchTerm]);
+
+  const cards_ = tokenIds?.map(id => {
+    return (
+      id > 11 && (
+        <GridItem key={id} colSpan={{ base: 6, md: 3, lg: 2 }}>
+          <NFTMarketplaceCard id={id} searchTerm={searchTerm} />
+        </GridItem>
+      )
+    );
+  });
+
+  // const nftCards = () => {
+  // const nfts: any = [];
+  // if (tokenIds.length < 1) return;
+
+  // tokenIds?.map(id => {
+  //   if (id <= 11) return null;
+  //   if (id === undefined) return null;
+  //   const [data, hide] = getNftData({id:id, searchTerm:searchTerm});
+  //   if (hide) return null;
+  //   nfts.push([data, id]);
+  // })
+
+  // const cards_ = nfts?.map((nft:any) => (<NFTMarketplaceCard id={nft[0]} nftData={nft[1]} />))
+  //   .filter((e:any)=>e!==undefined)
+  //   .filter((e:any)=>e!==null)
+  //   .filter(React.isValidElement)
+  //   .map((e:any, s:any)=>(
+  //     <GridItem key={s} colSpan={{ base: 6, md: 3, lg: 2 }}>
+  //       {e}
+  //     </GridItem>
+  //   ));
+
+  // tokenIds?.map(id => id>11&&(
+  //   /* {tokenIds?.map(id => ( */
+  //   <GridItem key={id} colSpan={{ base: 6, md: 3, lg: 2 }}>
+  //     <NFTMarketplaceCard id={id} searchTerm={searchTerm} />
+  //   </GridItem>
+  // ))
+  // }
+
+  // console.log("!ownedTokenIds:", address, tokenIds);
   return (
     <PageWrapper>
-      {/* <Flex align="start" width={"full"}>
-        <h1 className="text-3xl font-bold mb-6 flex">
-          Hi, <Address address={address} disableAvatar disableAddressLink />
-        </h1>
-      </Flex> */}
-      {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6 space-4">
-        <Card>List asset for sale</Card>
-        <Card>Distribute funds</Card>
-        <Card>Request payment</Card>
-      </div> */}
-      {/* <h1 className="text-3xl font-bold mb-6 flex items-start text-left w-full">Marketplace</h1> */}
       <Text fontSize={34} fontWeight="bold" w="100%" align="left" m={0} mb={14}>
         Marketplace
       </Text>
-
-      <Grid templateColumns="repeat(6, 1fr)" gap="24px">
-        {tokenIds?.map(id => (
-          <GridItem key={id} colSpan={{ base: 6, md: 3, lg: 2 }}>
-            <NFTMarketplaceCard id={id} />
-          </GridItem>
-        ))}
+      <SearchBar setSearchTerm={setSearchTerm} /> {/*To fix border colors*/}
+      <Featured />
+      {/* <button onClick={()=>console.log(searchTerm)}>sth</button> */}
+      <Grid key={`${searchTerm}`} templateColumns="repeat(6, 1fr)" gap="24px">
+        {cards_}
       </Grid>
-      {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6 space-4">
-        {tokenIds?.map(id => (
-          <NFTMarketplaceCard key={id} id={id} />
-        ))}
-      </div> */}
     </PageWrapper>
   );
 };

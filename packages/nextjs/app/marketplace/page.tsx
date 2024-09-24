@@ -1,73 +1,50 @@
 "use client";
 
-import React from "react";
-// import { Address } from "~~/components/scaffold-eth";
-// import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
-// import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-// import { Box, Flex, Select, Stack, Grid } from "@chakra-ui/react";
-// import { Alert, Button, Input, Text } from "~~/components";
+import React, { useEffect, useState } from "react";
+import Featured from "./_components/Featured";
 import { SearchBar } from "./_components/SearchBar";
-// import { Flex } from "@chakra-ui/react";
-// import { useAccount } from "wagmi";
-import { NFTCard, PageWrapper } from "~~/components";
-
-// import { Filter } from "./_components/Filter";
+import { Text } from "@chakra-ui/react";
+import { useAccount } from "wagmi";
+import { NFTMarketplaceCard, PageWrapper } from "~~/components";
+import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 
 const MarketplacePage: React.FC = () => {
-  // const { address } = useAccount();
+  const { address } = useAccount();
+  const [tokenIds, setTokenIds] = useState<bigint[]>([]);
+  const [lastFetchedAddress, setLastFetchedAddress] = useState<string | undefined>(undefined);
+  const [searchTerm, setSearchTerm] = useState("");
+  // const [filters, setFilters] = useState([]);
 
-  // let not = BigInt(0); // numberOfTokens
-  // try {
-  //   while (true) {
-  //     const { data: numberOfTokens } = useScaffoldReadContract({
-  //       contractName: "NFTFactory",
-  //       functionName: "ownerOf",
-  //       args: [not],
-  //     });
-  //   }
-  // } catch {
+  const { data: fetchedTokenIds, refetch } = useScaffoldReadContract({
+    contractName: "NFTFactory",
+    functionName: "getTokensByAddress",
+    args: [address],
+  });
 
-  // }
+  useEffect(() => {
+    const fetchTokenIds = async () => {
+      if ((address && tokenIds.length === 0) || address !== lastFetchedAddress) {
+        await refetch();
+        if (fetchedTokenIds) {
+          setTokenIds([...fetchedTokenIds]); //"1","2","3","4" BigInt(1),BigInt(2),BigInt(3),BigInt(4)
+          setLastFetchedAddress(address);
+        }
+      }
+    };
 
-  // const ownedTokenIds: BigInt[] = [];
-  // for (let i = 0; i < not; i++) {
-  //   ownedTokenIds.push(BigInt(i));
-  // }
+    fetchTokenIds();
+  }, [address, lastFetchedAddress, tokenIds.length, refetch, fetchedTokenIds]);
 
-  // console.log(ownedTokenIds);
-
-  // const { data: numberOfTokens } = useScaffoldReadContract({
-  //         contractName: "NFTFactory",
-  //         functionName: "ownerOf",
-  //         args: [BigInt(0)],
-  //       });
-  // console.log(numberOfTokens);
-
-  const tokenIds = [0, 1, 2, 3, 4, 5, 6, 7, 8];
   return (
     <PageWrapper>
-      <h1 className="text-3xl font-bold mb-6 flex items-start text-left w-full">Marketplace</h1>
-      {/* <div className="relative h-11 flex flex-1 flex-shrink-0">
-        <input
-          className="peer block w-1/2 h-11 rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
-          placeholder="search"
-          // defaultValue={searchParams.get('query')?.toString()}
-          // onChange={(e) => {
-          //   handleSearch(e.target.value);
-          // }}
-        />
-        <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
-      </div> */}
-
-      {/* <Grid w={"100vw"} h={"full"} templateColumns="350px 1fr" gap={0}> */}
-      <SearchBar />
-
-      {/* <Filter /> */}
-      {/* </Grid> */}
-
+      <Text fontSize={34} fontWeight="bold" w="100%" align="left" m={0} mb={14}>
+        Marketplace
+      </Text>
+      <SearchBar setSearchTerm={setSearchTerm} /> {/*To fix border colors*/}
+      <Featured />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 space-4">
-        {tokenIds?.map(id => (
-          <NFTCard key={id} id={String(id)} />
+        {tokenIds?.map((id, i) => (
+          <NFTMarketplaceCard key={i} id={id} searchTerm={searchTerm} />
         ))}
       </div>
     </PageWrapper>

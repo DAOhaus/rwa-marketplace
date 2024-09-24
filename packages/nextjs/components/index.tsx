@@ -5,5 +5,6 @@ export { default as Alert } from "./Alert";
 export { default as Accordian } from "./Accordian";
 export { default as Card } from "./Card";
 export { default as NFTCard } from "./NFTCard";
+export { default as NFTMarketplaceCard } from "./NFTMarketplaceCard";
 export { default as Loader } from "./Loader";
 export { default as Input, Label as InputLabel } from "./Input";

@@ -3,7 +3,7 @@ import Link from "next/link";
 import styled from "styled-components";
 import { Button, Card } from "~~/components";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
-import { stringToJsonSafe } from "~~/utils/helpers";
+import { ipfsToJsonSafe, stringToJsonSafe } from "~~/utils/helpers";
 
 interface CardProps {
   className?: string;
@@ -25,8 +25,13 @@ const NFTCard: React.FC<CardProps> = ({ className, id }) => {
   // console.log("!id and data", bigIntId, tokenURI);
 
   console.log("tokenURI", tokenURI);
+
   if (!tokenURI) return;
-  const nftData = stringToJsonSafe(tokenURI);
+
+  let nftData;
+  if (tokenURI.slice(0, 4) === "http") nftData = ipfsToJsonSafe(tokenURI);
+  else nftData = stringToJsonSafe(tokenURI);
+
   // const metadata = (
   //   <div className="grid grid-cols-2 gap-2">
   //     <div className="flex flex-col">

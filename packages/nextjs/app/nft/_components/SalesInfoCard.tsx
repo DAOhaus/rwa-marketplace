@@ -21,7 +21,8 @@ const SalesInfoCard: FC<Props> = ({ className }) => {
           <Text sx={nftDetailsNameStyle}>Chain</Text>
         </Box>
 
-        <Box fontWeight="bold">{(Math.random() * 10).toPrecision(3)} ETH</Box>
+        {/* <Box fontWeight="bold">{(Math.random() * 10).toPrecision(3)} ETH</Box> */}
+        <Box fontWeight="bold">5.32 ETH</Box>
         <Box fontWeight="bold" w="120px">
           Polygon
         </Box>
